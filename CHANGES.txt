@@ -1,0 +1,5 @@
+TestCentric Net20 Pluggable Agent 1.0
+
+This is the initial release of the net20 pluggable agent and is the first
+pluggable agent released. Pluggable agents allow the TestCentric Engine
+to support agents for executing tests beyond those that are built in.
