@@ -308,10 +308,10 @@ Task("PackageChocolatey")
 	.IsDependentOn("BuildChocolateyPackage")
 	.IsDependentOn("TestChocolateyPackage");
 
-//Task("Appveyor")
-//	.IsDependentOn("Build")
-//	.IsDependentOn("Test")
-//	.IsDependentOn("Package");
+Task("Appveyor")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test")
+    .IsDependentOn("Package");
 
 //Task("Travis")
 //	.IsDependentOn("Build")

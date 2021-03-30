@@ -35,7 +35,7 @@ const string DEFAULT_CONFIGURATION = "Release";
 // independently. This is required because they depend instance members.
 static string PROJECT_DIR; PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath + "/";
 static string BIN_DIR; BIN_DIR = $"{PROJECT_DIR}bin/{configuration}/";
-const string PACKAGE_DIR = "output/";
+const string PACKAGE_DIR = "package/";
 const string PACKAGE_TEST_DIR = PACKAGE_DIR + "test/";
 
 // Package sources for nuget restore
