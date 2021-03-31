@@ -41,7 +41,8 @@ const string PACKAGE_TEST_DIR = PACKAGE_DIR + "test/";
 // Package sources for nuget restore
 static readonly string[] PACKAGE_SOURCES = {
 	"https://www.nuget.org/api/v2",
-	"https://www.myget.org/F/nunit/api/v2"
+	"https://www.myget.org/F/nunit/api/v2",
+	"https://www.myget.org/F/testcentric/api/v2"
 };
 
 // Packaging
@@ -68,12 +69,10 @@ static readonly string[] LAUNCHER_FILES = {
 };
 
 static readonly string[] AGENT_FILES = {
-	"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config", "net20-pluggable-agent.pdb",
-	"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config", "net20-pluggable-agent-x86.pdb",
-	"nunit.engine.api.dll",
-	"testcentric.agent.api.dll", "testcentric.agent.api.pdb",
-	"testcentric.engine.core.dll", "testcentric.engine.core.pdb",
-	"testcentric.engine.metadata.dll", "testcentric.engine.metadata.pdb"
+	"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
+	"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
+	"nunit.engine.api.dll", "testcentric.agent.api.dll",
+	"testcentric.engine.core.dll", "testcentric.engine.metadata.dll"
 };
 
 // Package Testing

@@ -204,11 +204,8 @@ Task("BuildNuGetPackage")
 					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe.config", Target = "tools/agent" },
 					new NuSpecContent { Source = BIN_DIR + "agent/nunit.engine.api.dll", Target = "tools/agent" },
 					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.pdb", Target = "tools/agent" },
 					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.pdb", Target = "tools/agent" },
 					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.pdb", Target = "tools/agent" }
 				}
 			});
 	});
@@ -264,11 +261,8 @@ Task("BuildChocolateyPackage")
 					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe.config", Target = "tools/agent" },
 					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/nunit.engine.api.dll", Target = "tools/agent" },
 					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.pdb", Target = "tools/agent" },
 					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.pdb", Target = "tools/agent" },
 					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.pdb", Target = "tools/agent" }
 				}
 			});
     });
