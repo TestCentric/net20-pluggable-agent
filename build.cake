@@ -1,5 +1,5 @@
-//////////////////////////////////////////////////////////////////////
-// ARGUMENTS  
+	//////////////////////////////////////////////////////////////////////
+	// ARGUMENTS  
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument("target", "Default");
@@ -19,7 +19,7 @@ string configuration = Argument("configuration", DEFAULT_CONFIGURATION);
 //////////////////////////////////////////////////////////////////////
 
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
-var packageVersion = DEFAULT_VERSION + dbgSuffix;
+var PackageVersion = DEFAULT_VERSION + dbgSuffix;
 
 if (BuildSystem.IsRunningOnAppVeyor)
 {
@@ -27,7 +27,7 @@ if (BuildSystem.IsRunningOnAppVeyor)
 
 	if (tag.IsTag)
 	{
-		packageVersion = tag.Name;
+		PackageVersion = tag.Name;
 	}
 	else
 	{
@@ -37,7 +37,7 @@ if (BuildSystem.IsRunningOnAppVeyor)
 
 		if (branch == "master" && !isPullRequest)
 		{
-			packageVersion = DEFAULT_VERSION + "-dev-" + buildNumber + dbgSuffix;
+			PackageVersion = DEFAULT_VERSION + "-dev-" + buildNumber + dbgSuffix;
 		}
 		else
 		{
@@ -54,15 +54,15 @@ if (BuildSystem.IsRunningOnAppVeyor)
 
             suffix = suffix.Replace(".", "");
 
-			packageVersion = DEFAULT_VERSION + suffix;
+			PackageVersion = DEFAULT_VERSION + suffix;
 		}
 	}
 
-	AppVeyor.UpdateBuildVersion(packageVersion);
+	AppVeyor.UpdateBuildVersion(PackageVersion);
 }
 
 // Can't load the lower level scripts until  both
-// configuration and packageVersion are set.
+// configuration and PackageVersion are set.
 #load "constants.cake"
 #load "package-checks.cake"
 #load "test-results.cake"
@@ -91,7 +91,6 @@ Task("DeleteObjectDirectories")
 			DeleteDirectory(dir, new DeleteDirectorySettings() { Recursive = true });
 	});
 
-// NOTE: Any project to which this file is added is required to have a 'Clean' target
 Task("CleanAll")
 	.Description("Perform standard 'Clean' followed by deleting object directories")
 	.IsDependentOn("Clean")
@@ -153,68 +152,27 @@ Task("Test")
 	});
 
 //////////////////////////////////////////////////////////////////////
-// PACKAGE
+// PACKAGING
 //////////////////////////////////////////////////////////////////////
-
-// Additional package metadata
-var PROJECT_URL = new Uri("http://test-centric.org");
-var ICON_URL = new Uri("https://cdn.rawgit.com/nunit/resources/master/images/icon/nunit_256.png");
-var LICENSE_URL = new Uri("http://nunit.org/nuget/nunit3-license.txt");
-var PROJECT_SOURCE_URL = new Uri(GITHUB_SITE);
-var PACKAGE_SOURCE_URL = new Uri(GITHUB_SITE);
-var BUG_TRACKER_URL = new Uri(GITHUB_SITE + "/issues");
-var DOCS_URL = new Uri(WIKI_PAGE);
-var MAILING_LIST_URL = new Uri("https://groups.google.com/forum/#!forum/nunit-discuss");
 
 Task("BuildNuGetPackage")
 	.Does(() =>
 	{
 		CreateDirectory(PACKAGE_DIR);
 
-		NuGetPack(
-			new NuGetPackSettings()
-			{
-				Id = NUGET_ID,
-				Version = packageVersion,
-				Title = TITLE,
-				Authors = AUTHORS,
-				Owners = OWNERS,
-				Description = DESCRIPTION,
-				Summary = SUMMARY,
-				ProjectUrl = PROJECT_URL,
-				IconUrl = ICON_URL,
-				LicenseUrl = LICENSE_URL,
-				RequireLicenseAcceptance = false,
-				Copyright = COPYRIGHT,
-				ReleaseNotes = RELEASE_NOTES,
-				Tags = TAGS,
-				//Language = "en-US",
-				OutputDirectory = PACKAGE_DIR,
-				Files = new[] {
-					new NuSpecContent { Source = PROJECT_DIR + "LICENSE.txt" },
-					new NuSpecContent { Source = PROJECT_DIR + "CHANGES.txt" },
-					new NuSpecContent { Source = BIN_DIR + "net20-agent-launcher.dll", Target = "tools" },
-					new NuSpecContent { Source = BIN_DIR + "nunit.engine.api.dll", Target = "tools" },
-					new NuSpecContent { Source = BIN_DIR + "testcentric.agent.api.dll", Target = "tools" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.exe", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.pdb", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.exe.config", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.pdb", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe.config", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/nunit.engine.api.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.dll", Target = "tools/agent" },
-					new NuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.dll", Target = "tools/agent" },
-				}
-			});
+		NuGetPack("nuget/Net20PluggableAgent.nuspec", new NuGetPackSettings()
+		{
+			Version = PackageVersion,
+			OutputDirectory = PACKAGE_DIR,
+			NoPackageAnalysis = true
+		});
 	});
 
 Task("TestNuGetPackage")
 	.IsDependentOn("InstallGuiRunner")
 	.Does(() =>
 	{
-		new NuGetPackageTester(Context, packageVersion).RunAllTests();
+		new NuGetPackageTester(Context, PackageVersion).RunAllTests();
 	});
 
 Task("BuildChocolateyPackage")
@@ -222,56 +180,18 @@ Task("BuildChocolateyPackage")
     {
         CreateDirectory(PACKAGE_DIR);
 
-        ChocolateyPack(
-            new ChocolateyPackSettings()
-            {
-                Id = CHOCO_ID,
-                Version = packageVersion,
-                Title = TITLE,
-                Authors = AUTHORS,
-                Owners = OWNERS,
-                Description = DESCRIPTION,
-                Summary = SUMMARY,
-                ProjectUrl = PROJECT_URL,
-                IconUrl = ICON_URL,
-                LicenseUrl = LICENSE_URL,
-                RequireLicenseAcceptance = false,
-                Copyright = COPYRIGHT,
-                ProjectSourceUrl = PROJECT_SOURCE_URL,
-                DocsUrl = DOCS_URL,
-                BugTrackerUrl = BUG_TRACKER_URL,
-                PackageSourceUrl = PACKAGE_SOURCE_URL,
-                MailingListUrl = MAILING_LIST_URL,
-                ReleaseNotes = RELEASE_NOTES,
-                Tags = TAGS,
-                //Language = "en-US",
-                OutputDirectory = PACKAGE_DIR,
-                Files = new[] {
-                    new ChocolateyNuSpecContent { Source = PROJECT_DIR + "LICENSE.txt", Target = "tools" },
-                    new ChocolateyNuSpecContent { Source = PROJECT_DIR + "CHANGES.txt", Target = "tools" },
-                    new ChocolateyNuSpecContent { Source = PROJECT_DIR + "VERIFICATION.txt", Target = "tools" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "net20-agent-launcher.dll", Target = "tools" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "nunit.engine.api.dll", Target = "tools" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "testcentric.agent.api.dll", Target = "tools" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.exe", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.pdb", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent.exe.config", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.pdb", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/net20-pluggable-agent-x86.exe.config", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/nunit.engine.api.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.agent.api.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.core.dll", Target = "tools/agent" },
-					new ChocolateyNuSpecContent { Source = BIN_DIR + "agent/testcentric.engine.metadata.dll", Target = "tools/agent" },
-				}
-			});
-    });
+		ChocolateyPack("choco/net20-pluggable-agent.nuspec", new ChocolateyPackSettings()
+		{
+			Version = PackageVersion,
+			OutputDirectory = PACKAGE_DIR
+		});
+	});
 
 Task("TestChocolateyPackage")
 	.IsDependentOn("InstallGuiRunner")
 	.Does(() =>
 	{
-		new ChocolateyPackageTester(Context, packageVersion).RunAllTests();
+		new ChocolateyPackageTester(Context, PackageVersion).RunAllTests();
 	});
 
 Task("InstallGuiRunner")

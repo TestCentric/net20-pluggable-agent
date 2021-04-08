@@ -46,22 +46,12 @@ static readonly string[] PACKAGE_SOURCES = {
 };
 
 // Packaging
-readonly string NUGET_PACKAGE_NAME = $"{NUGET_ID}.{packageVersion}.nupkg";
+readonly string NUGET_PACKAGE_NAME = $"{NUGET_ID}.{PackageVersion}.nupkg";
 readonly string NUGET_PACKAGE = PACKAGE_DIR + NUGET_PACKAGE_NAME;
 const string NUGET_TEST_DIR = PACKAGE_TEST_DIR + NUGET_ID;
-readonly string CHOCO_PACKAGE_NAME = $"{CHOCO_ID}.{packageVersion}.nupkg";
+readonly string CHOCO_PACKAGE_NAME = $"{CHOCO_ID}.{PackageVersion}.nupkg";
 readonly string CHOCO_PACKAGE = PACKAGE_DIR + CHOCO_PACKAGE_NAME;
 const string CHOCO_TEST_DIR = PACKAGE_TEST_DIR + CHOCO_ID;
-
-// Metadata used in both the nuget and chocolatey packages
-var TITLE = "TestCentric - Net20 Pluggable Agent";
-var AUTHORS = new[] { "Charlie Poole" };
-var OWNERS = new[] { "Charlie Poole" };
-var DESCRIPTION = "This extension allows the TestCentric GUI to run tests under the .NET 2.0 framework.";
-var SUMMARY = "TestCentric Engine extension for running tests under .NET 2.0";
-var COPYRIGHT = "Copyright (c) 2021 Charlie Poole";
-var RELEASE_NOTES = new[] { "See https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/master/CHANGES.txt" };
-var TAGS = new[] { "nunit", "testcentric", "agent", "net20" };
 
 // Package content checking
 static readonly string[] LAUNCHER_FILES = {
