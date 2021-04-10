@@ -1,7 +1,8 @@
 public abstract class PackageTester
 {
     const string TEST_RESULT = "TestResult.xml";
-    const string GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
+    const string NUGET_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_NUGET_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
+    const string CHOCO_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_CHOCO_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
 
     static readonly ExpectedResult EXPECTED_RESULT = new ExpectedResult("Failed")
     {
@@ -10,7 +11,11 @@ public abstract class PackageTester
         Failed = 5,
         Warnings = 0,
         Inconclusive = 1,
-        Skipped = 7
+        Skipped = 7,
+        Assemblies = new AssemblyResult[]
+        {
+            new AssemblyResult() { Name = MOCK_ASSEMBLY, Runtime = "net20" }
+        }
     };
 
     protected ICakeContext _context;
@@ -26,6 +31,8 @@ public abstract class PackageTester
     protected string PackageVersion { get; }
     protected string PackageName => $"{PackageId}.{PackageVersion}";
     protected string PackageTestDirectory => PACKAGE_TEST_DIR + PackageId;
+
+    protected abstract string GuiRunner { get; }
 
     public abstract void CheckPackageContent();
 
@@ -56,7 +63,7 @@ public abstract class PackageTester
         {
             // We must delete the test directory so that we don't have both
             // the nuget and chocolatey packages installed at the same time.
-            RemoveTestDirectory();
+            //RemoveTestDirectory();
         }
     }
 
@@ -98,9 +105,10 @@ public abstract class PackageTester
 
     public void RunGuiUnattended(string testAssembly)
     {
-        _context.StartProcess(GUI_RUNNER, new ProcessSettings()
+        Console.WriteLine($"Using GUI Runner {GuiRunner}");
+        _context.StartProcess(GuiRunner, new ProcessSettings()
         {
-            Arguments = $"{testAssembly} --run --unattended"
+            Arguments = $"{testAssembly} --run --unattended --trace:Debug"
         });
     }
 }
@@ -111,6 +119,8 @@ public class NuGetPackageTester : PackageTester
         :base(context, version) { }
 
     protected override string PackageId => NUGET_ID;
+
+    protected override string GuiRunner => $"{PACKAGE_TEST_DIR}{GUI_RUNNER_NUGET_ID}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
 
     public override void CheckPackageContent()
     {
@@ -131,6 +141,8 @@ public class ChocolateyPackageTester : PackageTester
         : base(context, version) { }
 
     protected override string PackageId => CHOCO_ID;
+
+    protected override string GuiRunner => $"{PACKAGE_TEST_DIR}{GUI_RUNNER_CHOCO_ID}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
 
     public override void CheckPackageContent()
     {

@@ -61,6 +61,9 @@ if (BuildSystem.IsRunningOnAppVeyor)
 	AppVeyor.UpdateBuildVersion(PackageVersion);
 }
 
+bool IsProductionRelease = !PackageVersion.Contains("-");
+bool IsDevelopmentRelease = PackageVersion.Contains("-dev-");
+
 // Can't load the lower level scripts until  both
 // configuration and PackageVersion are set.
 #load "constants.cake"
@@ -169,9 +172,16 @@ Task("BuildNuGetPackage")
 	});
 
 Task("TestNuGetPackage")
-	.IsDependentOn("InstallGuiRunner")
 	.Does(() =>
 	{
+		NuGetInstall(GUI_RUNNER_NUGET_ID,
+			new NuGetInstallSettings()
+			{
+				Version = GUI_RUNNER_VERSION,
+				Source = PACKAGE_SOURCES,
+				OutputDirectory = PACKAGE_TEST_DIR
+			});
+
 		new NuGetPackageTester(Context, PackageVersion).RunAllTests();
 	});
 
@@ -188,22 +198,39 @@ Task("BuildChocolateyPackage")
 	});
 
 Task("TestChocolateyPackage")
-	.IsDependentOn("InstallGuiRunner")
 	.Does(() =>
 	{
-		new ChocolateyPackageTester(Context, PackageVersion).RunAllTests();
-	});
-
-Task("InstallGuiRunner")
-	.Does(() =>
-	{
-		NuGetInstall(GUI_RUNNER_ID,
+		NuGetInstall(GUI_RUNNER_CHOCO_ID,
 			new NuGetInstallSettings()
 			{
 				Version = GUI_RUNNER_VERSION,
-				Source = GUI_RUNNER_SOURCE,
+				Source = PACKAGE_SOURCES,
 				OutputDirectory = PACKAGE_TEST_DIR
 			});
+
+		new ChocolateyPackageTester(Context, PackageVersion).RunAllTests();
+	});
+
+//////////////////////////////////////////////////////////////////////
+// PUBLISH PACKAGES
+//////////////////////////////////////////////////////////////////////
+
+Task("PublishToMyGet")
+	.WithCriteria(IsProductionRelease || IsDevelopmentRelease)
+	.IsDependentOn("Package")
+	.Does(() =>
+	{
+		NuGetPush(NUGET_PACKAGE, new NuGetPushSettings()
+		{
+			ApiKey = MYGET_API_KEY,
+			Source = MYGET_PUSH_URL
+		});
+
+		ChocolateyPush(CHOCO_PACKAGE, new ChocolateyPushSettings()
+		{
+			ApiKey = MYGET_API_KEY,
+			Source = MYGET_PUSH_URL
+		});
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -222,10 +249,14 @@ Task("PackageChocolatey")
 	.IsDependentOn("BuildChocolateyPackage")
 	.IsDependentOn("TestChocolateyPackage");
 
+Task("Publish")
+	.IsDependentOn("PublishToMyGet");
+
 Task("Appveyor")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Package");
+    .IsDependentOn("Package")
+	.IsDependentOn("Publish");
 
 //Task("Travis")
 //	.IsDependentOn("Build")

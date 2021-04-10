@@ -66,9 +66,9 @@ static readonly string[] AGENT_FILES = {
 };
 
 // Package Testing
-const string GUI_RUNNER_ID = "TestCentric.GuiRunner";
-const string GUI_RUNNER_VERSION = "2.0.0-dev00013";
-static readonly string[] GUI_RUNNER_SOURCE = { "https://www.myget.org/F/testcentric/api/v3/index.json" };
+const string GUI_RUNNER_NUGET_ID = "TestCentric.GuiRunner";
+const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
+const string GUI_RUNNER_VERSION = "2.0.0-dev00028";
 
 // URLs for uploading packages
 const string MYGET_PUSH_URL = "https://www.myget.org/F/testcentric/api/v2";
