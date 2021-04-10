@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>nunit-extension-net20-pluggable-agent</id>
+    <version>0.0.0</version>
+    <title>TestCentric Extension - Net20 Pluggable Agent</title>
+    <authors>Charlie Poole</authors>
+    <owners>Charlie Poole</owners>
+    <copyright>Copyright (c) 2021 Charlie Poole</copyright>
+    <projectUrl>http://test-centric.org</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://test-centric.org/assets/img/testcentric_128x128.png</iconUrl>
+    <language>en-US</language>
+    <projectSourceUrl>https://github.com/Testcentric/net20-pluggable-agent</projectSourceUrl>
+    <packageSourceUrl>https://github.com/Testcentric/net20-pluggable-agent</packageSourceUrl>
+    <docsUrl>https://test-centric.org</docsUrl>
+    <mailingListUrl>https://groups.google.com/forum/#!forum/nunit-discuss</mailingListUrl>
+    <bugTrackerUrl>https://github.com/Testcentric/net20-pluggable-agent/issues</bugTrackerUrl>
+    <tags>net20-pluggable-agent testcentric nunit extension pluggable agent net20</tags>
+    <summary>TestCentric Engine extension for running tests under .NET 2.0</summary>
+    <description>This extension allow the TestCentric GUI to run tests under the .NET 2.0 framework.</description>
+    <releaseNotes>https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/master/CHANGES.txt</releaseNotes>
+  </metadata>
+  <files>
+    <file src="../testcentric.png" />
+    <file src="../LICENSE.txt" target="tools" />
+    <file src="../CHANGES.txt" target="tools" />
+    <file src="../VERIFICATION.txt" target="tools" />
+    <file src="../bin/Release/net20-agent-launcher.dll" target="tools" />
+    <file src="../bin/Release/nunit.engine.api.dll" target="tools" />
+    <file src="../bin/Release/testcentric.agent.api.dll" target="tools" />
+    <file src="../bin/Release/agent/net20-pluggable-agent.exe" target="tools/agent" />
+    <file src="../bin/Release/agent/net20-pluggable-agent.pdb" target="tools/agent" />
+    <file src="../bin/Release/agent/net20-pluggable-agent.exe.config" target="tools/agent" />
+    <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe" target="tools/agent" />
+    <file src="../bin/Release/agent/net20-pluggable-agent-x86.pdb" target="tools/agent" />
+    <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe.config" target="tools/agent" />
+    <file src="../bin/Release/agent/nunit.engine.api.dll" target="tools/agent" />
+    <file src="../bin/Release/agent/testcentric.agent.api.dll" target="tools/agent" />
+    <file src="../bin/Release/agent/testcentric.engine.core.dll" target="tools/agent" />
+    <file src="../bin/Release/agent/testcentric.engine.metadata.dll" target="tools/agent" />
+  </files>
+</package>

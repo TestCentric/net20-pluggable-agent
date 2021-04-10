@@ -11,12 +11,20 @@ using System.Xml;
 public abstract class ResultSummary
 {
 	public string OverallResult { get; set; }
-	public int Total  { get; set; }
-	public int Passed  { get; set; }
-	public int Failed  { get; set; }
-	public int Warnings  { get; set; }
-	public int Inconclusive  { get; set; }
+	public int Total { get; set; }
+	public int Passed { get; set; }
+	public int Failed { get; set; }
+	public int Warnings { get; set; }
+	public int Inconclusive { get; set; }
 	public int Skipped { get; set; }
+
+	public AssemblyResult[] Assemblies { get; set; }
+}
+
+public class AssemblyResult : ResultSummary
+{
+	public string Name { get; set; }
+	public string Runtime { get; set; }
 }
 
 public class ExpectedResult : ResultSummary
@@ -30,6 +38,8 @@ public class ExpectedResult : ResultSummary
 		// Initialize counters to -1, indicating no expected value.
 		// Set properties of those items to be checked.
 		Total = Passed = Failed = Warnings = Inconclusive = Skipped = -1;
+
+		Assemblies = new AssemblyResult[0];
 	}
 }
 
@@ -51,6 +61,20 @@ public class ActualResult : ResultSummary
 		Warnings = IntAttribute(Xml, "warnings");
 		Inconclusive = IntAttribute(Xml, "inconclusive");
 		Skipped = IntAttribute(Xml, "skipped");
+
+		var assemblies = Xml.SelectNodes("test-suite[@type='Assembly']");
+		Assemblies = new AssemblyResult[assemblies.Count];
+
+		for (int i = 0; i < assemblies.Count; i++)
+		{
+			XmlNode assembly = assemblies[i];
+			var env = assembly.SelectSingleNode("environment");
+			string name = assembly.Attributes["name"].Value;
+			string clrVersion = env.Attributes["clr-version"].Value;
+			// This agent is only used with the .NET Framework.
+			string runtime = "net" + clrVersion.Substring(0, 3).Replace(".", "");
+			Assemblies[i] = new AssemblyResult() { Name = name, Runtime = runtime };
+		}
 	}
 
 	public XmlNode Xml { get; }
@@ -89,6 +113,18 @@ public class TestReport
 		CheckCounter("Warnings", expected.Warnings, result.Warnings);
 		CheckCounter("Inconclusive", expected.Inconclusive, result.Inconclusive);
 		CheckCounter("Skipped", expected.Skipped, result.Skipped);
+
+		if (expected.Assemblies.Length != result.Assemblies.Length)
+			Errors.Add($"   Expected: {expected.Assemblies.Length} assemblies\r\n    But was: {result.Assemblies.Length}");
+		for (int i = 0; i < expected.Assemblies.Length; i++)
+        {
+			var expectedAssembly = expected.Assemblies[i];
+			var resultAssembly = result.Assemblies[i];
+			if (expectedAssembly.Name != resultAssembly.Name)
+				Errors.Add($"   Expected: Assembly name {expectedAssembly.Name}\r\n    But was: {resultAssembly.Name}");
+			if (expectedAssembly.Runtime != resultAssembly.Runtime)
+				Errors.Add($"   Expected: Target runtime {expectedAssembly.Runtime}\r\n    But was: {resultAssembly.Runtime}");
+        }
 	}
 
 	public TestReport(Exception ex)
