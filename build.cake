@@ -35,7 +35,7 @@ if (BuildSystem.IsRunningOnAppVeyor)
 		var branch = AppVeyor.Environment.Repository.Branch;
 		var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
 
-		if (branch == "master" && !isPullRequest)
+		if (branch == MAIN_BRANCH && !isPullRequest)
 		{
 			PackageVersion = DEFAULT_VERSION + "-dev-" + buildNumber + dbgSuffix;
 		}

@@ -26,6 +26,7 @@ var WIKI_PAGE = "https://github.com/nunit/docs/wiki/Console-Command-Line";
 // next version after each release.
 const string DEFAULT_VERSION = "1.0.0";
 const string DEFAULT_CONFIGURATION = "Release";
+const string MAIN_BRANCH = "main";
 
 //////////////////////////////////////////////////////////////////////
 // DIRECTORIES
