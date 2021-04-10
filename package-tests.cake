@@ -105,7 +105,6 @@ public abstract class PackageTester
 
     public void RunGuiUnattended(string testAssembly)
     {
-        Console.WriteLine($"Using GUI Runner {GuiRunner}");
         _context.StartProcess(GuiRunner, new ProcessSettings()
         {
             Arguments = $"{testAssembly} --run --unattended --trace:Debug"

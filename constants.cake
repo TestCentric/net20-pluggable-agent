@@ -72,7 +72,7 @@ const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
 const string GUI_RUNNER_VERSION = "2.0.0-dev00028";
 
 // URLs for uploading packages
-const string MYGET_PUSH_URL = "https://www.myget.org/F/testcentric/api/v2";
+const string MYGET_PUSH_URL = "https://www.myget.org/F/testcentric/api/v2/package";
 const string NUGET_PUSH_URL = "https://api.nuget.org/v3/index.json";
 const string CHOCO_PUSH_URL = "https://push.chocolatey.org/";
 
