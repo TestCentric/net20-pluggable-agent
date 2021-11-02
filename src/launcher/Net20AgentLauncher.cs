@@ -7,16 +7,20 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text;
 using NUnit.Engine;
 using NUnit.Engine.Extensibility;
+using TestCentric.Engine.Extensibility;
 
 namespace TestCentric.Engine.Services
 {
     [Extension]
     public class Net20AgentLauncher : IAgentLauncher
     {
+        public TestAgentInfo AgentInfo => new TestAgentInfo(
+            GetType().Name + " (plugin)",
+            TestAgentType.LocalProcess);
+
         public bool CanCreateProcess(TestPackage package)
         {
             // Get target runtime

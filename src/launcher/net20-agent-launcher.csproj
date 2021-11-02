@@ -14,12 +14,9 @@
     </ItemGroup>
     <ItemGroup>
         <Reference Include="System.Runtime.Remoting" />
-        <Reference Include="testcentric.agent.api">
-          <HintPath>..\..\..\testcentric-gui\bin\Debug\engine\net40\testcentric.agent.api.dll</HintPath>
-        </Reference>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NUnit.Engine.Api" Version="3.11.1" />
-		<PackageReference Include="TestCentric.Agent.Api" Version="2.0.0-dev00021" />
+		<PackageReference Include="TestCentric.Engine.Api" Version="2.0.0-dev00522" />
 	</ItemGroup>
 </Project>

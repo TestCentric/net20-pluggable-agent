@@ -253,10 +253,15 @@ Task("Publish")
 	.IsDependentOn("PublishToMyGet");
 
 Task("Appveyor")
-    .IsDependentOn("Build")
-    .IsDependentOn("Test")
-    .IsDependentOn("Package")
-	.IsDependentOn("Publish");
+	.IsDependentOn("Build")
+	.IsDependentOn("Test");
+	////.IsDependentOn("Package")
+	////.IsDependentOn("Publish");
+
+Task("Full")
+	.IsDependentOn("Build")
+	.IsDependentOn("Test")
+	.IsDependentOn("Package");
 
 //Task("Travis")
 //	.IsDependentOn("Build")

@@ -26,7 +26,6 @@
 	  <file src="../testcentric.png" />
     <file src="../bin/Release/net20-agent-launcher.dll" target="tools" />
     <file src="../bin/Release/nunit.engine.api.dll" target="tools" />
-    <file src="../bin/Release/testcentric.agent.api.dll" target="tools" />
     <file src="../bin/Release/agent/net20-pluggable-agent.exe" target="tools/agent" />
     <file src="../bin/Release/agent/net20-pluggable-agent.pdb" target="tools/agent" />
     <file src="../bin/Release/agent/net20-pluggable-agent.exe.config" target="tools/agent" />
@@ -34,8 +33,6 @@
     <file src="../bin/Release/agent/net20-pluggable-agent-x86.pdb" target="tools/agent" />
     <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe.config" target="tools/agent" />
     <file src="../bin/Release/agent/nunit.engine.api.dll" target="tools/agent" />
-    <file src="../bin/Release/agent/testcentric.agent.api.dll" target="tools/agent" />
     <file src="../bin/Release/agent/testcentric.engine.core.dll" target="tools/agent" />
-    <file src="../bin/Release/agent/testcentric.engine.metadata.dll" target="tools/agent" />
   </files>
 </package>

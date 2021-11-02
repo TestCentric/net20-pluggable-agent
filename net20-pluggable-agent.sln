@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		appveyor.yml = appveyor.yml
 		build.cake = build.cake
 		CHANGES.txt = CHANGES.txt
+		constants.cake = constants.cake
 		LICENSE.txt = LICENSE.txt
 		package-checks.cake = package-checks.cake
 		package-tests.cake = package-tests.cake
