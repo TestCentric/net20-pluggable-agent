@@ -70,6 +70,9 @@ const string GUI_RUNNER_NUGET_ID = "TestCentric.GuiRunner";
 const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
 const string GUI_RUNNER_VERSION = "2.0.0-dev00075";
 
+const string NUGET_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_NUGET_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
+const string CHOCO_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_CHOCO_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
+
 // URLs for uploading packages
 const string MYGET_PUSH_URL = "https://www.myget.org/F/testcentric/api/v2/package";
 const string NUGET_PUSH_URL = "https://api.nuget.org/v3/index.json";

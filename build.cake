@@ -1,18 +1,9 @@
-	//////////////////////////////////////////////////////////////////////
-	// ARGUMENTS  
+//////////////////////////////////////////////////////////////////////
+// ARGUMENTS  
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument("target", "Default");
 string configuration = Argument("configuration", DEFAULT_CONFIGURATION);
-
-// Special (optional) arguments for the script. You pass these
-// through the Cake bootscrap script via the -ScriptArgs argument
-// for example: 
-//   ./build.ps1 -t RePackageNuget -ScriptArgs --nugetVersion="3.9.9"
-//   ./build.ps1 -t RePackageNuget -ScriptArgs '--binaries="rel3.9.9" --nugetVersion="3.9.9"'
-//var nugetVersion = Argument("nugetVersion", (string)null);
-//var chocoVersion = Argument("chocoVersion", (string)null);
-//var binaries = Argument("binaries", (string)null);
 
 //////////////////////////////////////////////////////////////////////
 // SET PACKAGE VERSION
@@ -66,10 +57,10 @@ bool IsDevelopmentRelease = PackageVersion.Contains("-dev-");
 
 // Can't load the lower level scripts until  both
 // configuration and PackageVersion are set.
-#load "constants.cake"
-#load "package-checks.cake"
-#load "test-results.cake"
-#load "package-tests.cake"
+#load "cake/constants.cake"
+#load "cake/package-checks.cake"
+#load "cake/test-results.cake"
+#load "cake/package-tests.cake"
 
 //////////////////////////////////////////////////////////////////////
 // CLEAN
@@ -155,7 +146,7 @@ Task("Test")
 	});
 
 //////////////////////////////////////////////////////////////////////
-// PACKAGING
+// NUGET PACKAGING
 //////////////////////////////////////////////////////////////////////
 
 Task("BuildNuGetPackage")
@@ -171,19 +162,41 @@ Task("BuildNuGetPackage")
 		});
 	});
 
-Task("TestNuGetPackage")
+Task("InstallNuGetGuiRunner")
 	.Does(() =>
 	{
-		NuGetInstall(GUI_RUNNER_NUGET_ID,
-			new NuGetInstallSettings()
-			{
-				Version = GUI_RUNNER_VERSION,
-				Source = PACKAGE_SOURCES,
-				OutputDirectory = PACKAGE_TEST_DIR
-			});
-
-		new NuGetPackageTester(Context, PackageVersion).RunAllTests();
+		InstallGuiRunner(GUI_RUNNER_NUGET_ID);
 	});
+
+Task("InstallNuGetPackage")
+	.Does(() =>
+	{
+		InstallPackage(NUGET_PACKAGE, NUGET_TEST_DIR);
+	});
+
+Task("VerifyNuGetPackage")
+	.IsDependentOn("InstallNuGetPackage")
+	.Does(() =>
+	{
+		Check.That(NUGET_TEST_DIR,
+		HasFiles("LICENSE.txt", "CHANGES.txt"),
+			HasDirectory("tools").WithFiles(LAUNCHER_FILES),
+			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
+
+		Information("  SUCCESS: All checks were successful");
+	});
+
+Task("TestNuGetPackage")
+	.IsDependentOn("InstallNuGetGuiRunner")
+	.IsDependentOn("InstallNuGetPackage")
+	.Does(() =>
+	{
+		new PackageTester(Context, PackageVersion, NUGET_ID, NUGET_GUI_RUNNER).RunAllTests();
+	});
+
+//////////////////////////////////////////////////////////////////////
+// CHOCOLATEY PACKAGING
+//////////////////////////////////////////////////////////////////////
 
 Task("BuildChocolateyPackage")
     .Does(() =>
@@ -197,19 +210,64 @@ Task("BuildChocolateyPackage")
 		});
 	});
 
-Task("TestChocolateyPackage")
+Task("InstallChocolateyRunner")
 	.Does(() =>
 	{
-		NuGetInstall(GUI_RUNNER_CHOCO_ID,
-			new NuGetInstallSettings()
-			{
-				Version = GUI_RUNNER_VERSION,
-				Source = PACKAGE_SOURCES,
-				OutputDirectory = PACKAGE_TEST_DIR
-			});
-
-		new ChocolateyPackageTester(Context, PackageVersion).RunAllTests();
+		InstallGuiRunner(GUI_RUNNER_CHOCO_ID);
 	});
+
+Task("InstallChocolateyPackage")
+	.Does(() =>
+	{
+		InstallPackage(CHOCO_PACKAGE, CHOCO_TEST_DIR);
+	});
+
+Task("VerifyChocolateyPackage")
+	.IsDependentOn("InstallChocolateyPackage")
+	.Does(() =>
+	{
+		Check.That(CHOCO_TEST_DIR,
+			HasDirectory("tools").WithFiles("LICENSE.txt", "CHANGES.txt", "VERIFICATION.txt").WithFiles(LAUNCHER_FILES),
+			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
+
+		Information("  SUCCESS: All checks were successful");
+	});
+
+
+Task("TestChocolateyPackage")
+	.IsDependentOn("InstallChocolateyRunner")
+	.IsDependentOn("InstallChocolateyPackage")
+	.Does(() =>
+	{
+		new PackageTester(Context, PackageVersion, CHOCO_ID, CHOCO_GUI_RUNNER).RunAllTests();
+	});
+
+//////////////////////////////////////////////////////////////////////
+// PACKAGING HELPERS
+//////////////////////////////////////////////////////////////////////
+
+void InstallGuiRunner(string packageId)
+{
+	NuGetInstall(packageId,
+		new NuGetInstallSettings()
+		{
+			Version = GUI_RUNNER_VERSION,
+			Source = PACKAGE_SOURCES,
+			OutputDirectory = PACKAGE_TEST_DIR
+		});
+}
+
+void InstallPackage(string package, string testDir)
+{
+	if (System.IO.Directory.Exists(testDir))
+		DeleteDirectory(testDir, new DeleteDirectorySettings() { Recursive = true });
+	CreateDirectory(testDir);
+
+	Unzip(package, testDir);
+
+	Information($"  Installed {System.IO.Path.GetFileName(package)}");
+	Information($"    at {testDir}");
+}
 
 //////////////////////////////////////////////////////////////////////
 // PUBLISH PACKAGES
@@ -243,20 +301,22 @@ Task("Package")
 
 Task("PackageNuGet")
 	.IsDependentOn("BuildNuGetPackage")
-	.IsDependentOn("TestNuGetPackage");
+	.IsDependentOn("VerifyNuGetPackage");
+	//.IsDependentOn("TestNuGetPackage");
 
 Task("PackageChocolatey")
 	.IsDependentOn("BuildChocolateyPackage")
-	.IsDependentOn("TestChocolateyPackage");
+	.IsDependentOn("VerifyChocolateyPackage");
+	//.IsDependentOn("TestChocolateyPackage");
 
 Task("Publish")
 	.IsDependentOn("PublishToMyGet");
 
 Task("Appveyor")
 	.IsDependentOn("Build")
-	.IsDependentOn("Test");
-	////.IsDependentOn("Package")
-	////.IsDependentOn("Publish");
+	.IsDependentOn("Test")
+	.IsDependentOn("Package");
+	//.IsDependentOn("Publish");
 
 Task("Full")
 	.IsDependentOn("Build")
