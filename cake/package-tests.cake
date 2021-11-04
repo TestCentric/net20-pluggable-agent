@@ -7,7 +7,7 @@ public class PackageTester
         Total = 36,
         Passed = 23,
         Failed = 5,
-        Warnings = 0,
+        Warnings = 1,
         Inconclusive = 1,
         Skipped = 7,
         Assemblies = new AssemblyResult[]
@@ -89,27 +89,7 @@ public class PackageTester
     {
         _context.StartProcess(GuiRunner, new ProcessSettings()
         {
-            Arguments = $"{testAssembly} --run --unattended --trace:Debug"
+            Arguments = $"{testAssembly} --run --unattended"
         });
     }
 }
-
-//public class NuGetPackageTester : PackageTester
-//{
-//    public NuGetPackageTester(ICakeContext context, string version)
-//        :base(context, version) { }
-
-//    protected override string PackageId => NUGET_ID;
-
-//    protected override string GuiRunner => $"{PACKAGE_TEST_DIR}{GUI_RUNNER_NUGET_ID}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
-//}
-
-//public class ChocolateyPackageTester : PackageTester
-//{
-//    public ChocolateyPackageTester(ICakeContext context, string version)
-//        : base(context, version) { }
-
-//    protected override string PackageId => CHOCO_ID;
-
-//    protected override string GuiRunner => $"{PACKAGE_TEST_DIR}{GUI_RUNNER_CHOCO_ID}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
-//}

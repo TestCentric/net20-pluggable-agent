@@ -36,9 +36,9 @@ namespace TestCentric.Engine.Agents
 
             LocateAgencyProcess(options.AgencyPid);
 
-            log.Info("Agent process {0} starting", pid);
-
-            log.Info("Running .NET Framework 2.0 agent");
+            log.Info($".NET 2.0 Agent process {pid} starting");
+            log.Info($"  AgentId:   {options.AgentId}");
+            log.Info($"  AgencyUrl: {options.AgencyUrl}");
 
             log.Info("Starting RemoteTestAgent");
             Agent = new RemoteTestAgent(options.AgentId);

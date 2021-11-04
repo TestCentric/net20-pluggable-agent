@@ -18,7 +18,7 @@ namespace TestCentric.Engine.Services
     public class Net20AgentLauncher : IAgentLauncher
     {
         public TestAgentInfo AgentInfo => new TestAgentInfo(
-            GetType().Name + " (plugin)",
+            GetType().Name,
             TestAgentType.LocalProcess);
 
         public bool CanCreateProcess(TestPackage package)
@@ -42,7 +42,7 @@ namespace TestCentric.Engine.Services
             bool loadUserProfile = package.GetSetting("LoadUserProfile", false);
             string workDirectory = package.GetSetting("WorkDirectory", string.Empty);
 
-            var sb = new StringBuilder($"{agentId} {agencyUrl} --pid={Process.GetCurrentProcess().Id}");
+            var sb = new StringBuilder($"--agentId={agentId} --agencyUrl={agencyUrl} --pid={Process.GetCurrentProcess().Id}");
 
             // Set options that need to be in effect before the package
             // is loaded by using the command line.

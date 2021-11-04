@@ -296,18 +296,19 @@ Task("PublishToMyGet")
 //////////////////////////////////////////////////////////////////////
 
 Task("Package")
+	.IsDependentOn("Build")
 	.IsDependentOn("PackageNuGet")
     .IsDependentOn("PackageChocolatey");
 
 Task("PackageNuGet")
 	.IsDependentOn("BuildNuGetPackage")
-	.IsDependentOn("VerifyNuGetPackage");
-	//.IsDependentOn("TestNuGetPackage");
+	.IsDependentOn("VerifyNuGetPackage")
+	.IsDependentOn("TestNuGetPackage");
 
 Task("PackageChocolatey")
 	.IsDependentOn("BuildChocolateyPackage")
-	.IsDependentOn("VerifyChocolateyPackage");
-	//.IsDependentOn("TestChocolateyPackage");
+	.IsDependentOn("VerifyChocolateyPackage")
+	.IsDependentOn("TestChocolateyPackage");
 
 Task("Publish")
 	.IsDependentOn("PublishToMyGet");
