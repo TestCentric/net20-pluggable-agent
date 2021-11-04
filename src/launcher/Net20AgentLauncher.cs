@@ -7,16 +7,20 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text;
 using NUnit.Engine;
 using NUnit.Engine.Extensibility;
+using TestCentric.Engine.Extensibility;
 
 namespace TestCentric.Engine.Services
 {
     [Extension]
     public class Net20AgentLauncher : IAgentLauncher
     {
+        public TestAgentInfo AgentInfo => new TestAgentInfo(
+            GetType().Name,
+            TestAgentType.LocalProcess);
+
         public bool CanCreateProcess(TestPackage package)
         {
             // Get target runtime
@@ -38,7 +42,7 @@ namespace TestCentric.Engine.Services
             bool loadUserProfile = package.GetSetting("LoadUserProfile", false);
             string workDirectory = package.GetSetting("WorkDirectory", string.Empty);
 
-            var sb = new StringBuilder($"{agentId} {agencyUrl} --pid={Process.GetCurrentProcess().Id}");
+            var sb = new StringBuilder($"--agentId={agentId} --agencyUrl={agencyUrl} --pid={Process.GetCurrentProcess().Id}");
 
             // Set options that need to be in effect before the package
             // is loaded by using the command line.

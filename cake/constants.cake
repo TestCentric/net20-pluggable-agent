@@ -56,20 +56,22 @@ const string CHOCO_TEST_DIR = PACKAGE_TEST_DIR + CHOCO_ID;
 
 // Package content checking
 static readonly string[] LAUNCHER_FILES = {
-	"net20-agent-launcher.dll", "nunit.engine.api.dll", "testcentric.agent.api.dll"
+	"net20-agent-launcher.dll", "nunit.engine.api.dll"
 };
 
 static readonly string[] AGENT_FILES = {
 	"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
 	"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
-	"nunit.engine.api.dll", "testcentric.agent.api.dll",
-	"testcentric.engine.core.dll", "testcentric.engine.metadata.dll"
+	"nunit.engine.api.dll",	"testcentric.engine.core.dll"
 };
 
 // Package Testing
 const string GUI_RUNNER_NUGET_ID = "TestCentric.GuiRunner";
 const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
-const string GUI_RUNNER_VERSION = "2.0.0-dev00028";
+const string GUI_RUNNER_VERSION = "2.0.0-dev00075";
+
+const string NUGET_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_NUGET_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
+const string CHOCO_GUI_RUNNER = PACKAGE_TEST_DIR + GUI_RUNNER_CHOCO_ID + "." + GUI_RUNNER_VERSION + "/tools/testcentric.exe";
 
 // URLs for uploading packages
 const string MYGET_PUSH_URL = "https://www.myget.org/F/testcentric/api/v2/package";

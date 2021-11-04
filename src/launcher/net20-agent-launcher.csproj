@@ -1,25 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <RootNamespace>TestCentric.Engine</RootNamespace>
-        <TargetFramework>net40</TargetFramework>
+  
+  <PropertyGroup>
+    <RootNamespace>TestCentric.Engine</RootNamespace>
+    <TargetFramework>net40</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-	    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	    <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\..\nunit.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
-    <ItemGroup>
-      <Compile Include="..\AssemblyInfo.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Reference Include="System.Runtime.Remoting" />
-        <Reference Include="testcentric.agent.api">
-          <HintPath>..\..\..\testcentric-gui\bin\Debug\engine\net40\testcentric.agent.api.dll</HintPath>
-        </Reference>
+	  <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	  <SignAssembly>true</SignAssembly>
+      <AssemblyOriginatorKeyFile>..\..\nunit.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Runtime.Remoting" />
 	</ItemGroup>
+  
 	<ItemGroup>
 		<PackageReference Include="NUnit.Engine.Api" Version="3.11.1" />
-		<PackageReference Include="TestCentric.Agent.Api" Version="2.0.0-dev00021" />
+		<PackageReference Include="TestCentric.Engine.Api" Version="2.0.0-dev00522" />
 	</ItemGroup>
+  
 </Project>

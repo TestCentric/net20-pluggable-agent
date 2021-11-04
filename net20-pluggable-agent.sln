@@ -15,9 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		build.cake = build.cake
 		CHANGES.txt = CHANGES.txt
 		LICENSE.txt = LICENSE.txt
-		package-checks.cake = package-checks.cake
-		package-tests.cake = package-tests.cake
-		test-results.cake = test-results.cake
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "net20-agent-launcher", "src\launcher\net20-agent-launcher.csproj", "{49758F00-C027-44A1-897F-C05862AD7BFA}"
@@ -32,6 +29,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "choco", "choco", "{7679FD0F-A828-4151-805E-6C662EFBFFE5}"
 	ProjectSection(SolutionItems) = preProject
 		choco\net20-pluggable-agent.nuspec = choco\net20-pluggable-agent.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cake", "cake", "{FB6EAF59-B1D0-4C75-A4D7-53A4195AC42F}"
+	ProjectSection(SolutionItems) = preProject
+		cake\constants.cake = cake\constants.cake
+		cake\package-checks.cake = cake\package-checks.cake
+		cake\package-tests.cake = cake\package-tests.cake
+		cake\test-results.cake = cake\test-results.cake
 	EndProjectSection
 EndProject
 Global
@@ -111,6 +116,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{68E72A39-0B0F-47DC-93F3-19E55A9C721C} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
 		{7679FD0F-A828-4151-805E-6C662EFBFFE5} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
+		{FB6EAF59-B1D0-4C75-A4D7-53A4195AC42F} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CAB7BD1E-1034-47CD-AA8E-FD4AC034193B}

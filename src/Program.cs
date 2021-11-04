@@ -7,18 +7,13 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
-using TestCentric.Common;
 using TestCentric.Engine.Internal;
-using TestCentric.Engine.Services;
-using TestCentric.Engine.Helpers;
-using NUnit.Engine;
+using TestCentric.Engine.Communication.Transports.Remoting;
 
 namespace TestCentric.Engine.Agents
 {
     public class TestCentricAgent
     {
-        static Guid AgentId;
-        static string AgencyUrl;
         static Process AgencyProcess;
         static RemoteTestAgent Agent;
         private static Logger log;
@@ -29,75 +24,25 @@ namespace TestCentric.Engine.Agents
         [STAThread]
         public static void Main(string[] args)
         {
-            AgentId = new Guid(args[0]);
-            AgencyUrl = args[1];
-
-            var traceLevel = InternalTraceLevel.Off;
+            var options = new AgentOptions(args);
             var pid = Process.GetCurrentProcess().Id;
-            var debugArgPassed = false;
-            var workDirectory = string.Empty;
-            var agencyPid = string.Empty;
-
-            for (int i = 2; i < args.Length; i++)
-            {
-                string arg = args[i];
-
-                // NOTE: we can test these strings exactly since
-                // they originate from the engine itself.
-                if (arg == "--debug-agent")
-                {
-                    debugArgPassed = true;
-                }
-                else if (arg.StartsWith("--trace:"))
-                {
-                    traceLevel = (InternalTraceLevel)Enum.Parse(typeof(InternalTraceLevel), arg.Substring(8));
-                }
-                else if (arg.StartsWith("--pid="))
-                {
-                    agencyPid = arg.Substring(6);
-                }
-                else if (arg.StartsWith("--work="))
-                {
-                    workDirectory = arg.Substring(7);
-                }
-            }
-
             var logName = $"testcentric-agent_{pid}.log";
-            InternalTrace.Initialize(Path.Combine(workDirectory, logName), traceLevel);
+
+            InternalTrace.Initialize(Path.Combine(options.WorkDirectory, logName), options.TraceLevel);
             log = InternalTrace.GetLogger(typeof(TestCentricAgent));
 
-            if (debugArgPassed)
+            if (options.DebugAgent || options.DebugTests)
                 TryLaunchDebugger();
 
-            LocateAgencyProcess(agencyPid);
+            LocateAgencyProcess(options.AgencyPid);
 
-            log.Info("Agent process {0} starting", pid);
-
-            log.Info("Running under version {0}, {1}",
-                Environment.Version,
-                RuntimeFramework.CurrentFramework.DisplayName);
-
-            // Create CoreEngine
-            var engine = new CoreEngine
-            {
-                WorkDirectory = workDirectory,
-                InternalTraceLevel = traceLevel
-            };
-
-            // Custom Service Initialization
-            engine.Services.Add(new ExtensionService());
-            engine.Services.Add(new DomainManager());
-            engine.Services.Add(new InProcessTestRunnerFactory());
-            engine.Services.Add(new DriverService());
-
-            // Initialize Services
-            log.Info("Initializing Services");
-            engine.InitializeServices();
+            log.Info($".NET 2.0 Agent process {pid} starting");
+            log.Info($"  AgentId:   {options.AgentId}");
+            log.Info($"  AgencyUrl: {options.AgencyUrl}");
 
             log.Info("Starting RemoteTestAgent");
-            Agent = new RemoteTestAgent(AgentId, engine.Services);
-            Agent.Transport =
-                new TestCentric.Engine.Communication.Transports.Remoting.TestAgentRemotingTransport(Agent, AgencyUrl);
+            Agent = new RemoteTestAgent(options.AgentId);
+            Agent.Transport = new TestAgentRemotingTransport(Agent, options.AgencyUrl);
 
             try
             {
