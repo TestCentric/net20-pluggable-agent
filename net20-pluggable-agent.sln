@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		appveyor.yml = appveyor.yml
 		build.cake = build.cake
 		CHANGES.txt = CHANGES.txt
+		GitReleaseManager.yaml = GitReleaseManager.yaml
+		GitVersion.yml = GitVersion.yml
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
@@ -37,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cake", "cake", "{FB6EAF59-B
 		cake\package-checks.cake = cake\package-checks.cake
 		cake\package-tests.cake = cake\package-tests.cake
 		cake\test-results.cake = cake\test-results.cake
+		cake\versioning.cake = cake\versioning.cake
 	EndProjectSection
 EndProject
 Global

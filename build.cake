@@ -1,3 +1,5 @@
+#tool nuget:?package=GitVersion.CommandLine&version=5.0.0
+
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
 //////////////////////////////////////////////////////////////////////
@@ -5,55 +7,34 @@
 var target = Argument("target", "Default");
 string configuration = Argument("configuration", DEFAULT_CONFIGURATION);
 
+// Additional Argument
+//
+// --packageVersion=VERSION bypasses GitVersion and causes the specified
+//                          version to be used instead. (versioning.cake)
+  
 //////////////////////////////////////////////////////////////////////
-// SET PACKAGE VERSION
+// SETUP
 //////////////////////////////////////////////////////////////////////
 
-var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
-var PackageVersion = DEFAULT_VERSION + dbgSuffix;
+string PackageVersion, NuGetPackageName, NuGetPackage, ChocoPackageName, ChocoPackage;
+bool IsDevelopmentRelease, IsProductionRelease;
 
-if (BuildSystem.IsRunningOnAppVeyor)
+Setup((context) =>
 {
-	var tag = AppVeyor.Environment.Repository.Tag;
+	PackageVersion = new BuildVersion(context).PackageVersion;
+	IsProductionRelease = !PackageVersion.Contains("-");
+	IsDevelopmentRelease = PackageVersion.Contains("-dev-");
 
-	if (tag.IsTag)
-	{
-		PackageVersion = tag.Name;
-	}
-	else
-	{
-		var buildNumber = AppVeyor.Environment.Build.Number.ToString("00000");
-		var branch = AppVeyor.Environment.Repository.Branch;
-		var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
+	NuGetPackageName = $"{NUGET_ID}.{PackageVersion}.nupkg";
+	NuGetPackage = PACKAGE_DIR + NuGetPackageName;
+	ChocoPackageName = $"{CHOCO_ID}.{PackageVersion}.nupkg";
+	ChocoPackage = PACKAGE_DIR + ChocoPackageName;
 
-		if (branch == MAIN_BRANCH && !isPullRequest)
-		{
-			PackageVersion = DEFAULT_VERSION + "-dev-" + buildNumber + dbgSuffix;
-		}
-		else
-		{
-			var suffix = "-ci-" + buildNumber + dbgSuffix;
+	Information($"Net20PluggableAgent {configuration} version {PackageVersion}");
 
-			if (isPullRequest)
-				suffix += "-pr-" + AppVeyor.Environment.PullRequest.Number;
-			else
-				suffix += "-" + branch;
-
-			// Nuget limits "special version part" to 20 chars. Add one for the hyphen.
-			if (suffix.Length > 21)
-				suffix = suffix.Substring(0, 21);
-
-            suffix = suffix.Replace(".", "");
-
-			PackageVersion = DEFAULT_VERSION + suffix;
-		}
-	}
-
-	AppVeyor.UpdateBuildVersion(PackageVersion);
-}
-
-bool IsProductionRelease = !PackageVersion.Contains("-");
-bool IsDevelopmentRelease = PackageVersion.Contains("-dev-");
+	if (BuildSystem.IsRunningOnAppVeyor)
+		AppVeyor.UpdateBuildVersion(PackageVersion);
+});
 
 // Can't load the lower level scripts until  both
 // configuration and PackageVersion are set.
@@ -61,6 +42,7 @@ bool IsDevelopmentRelease = PackageVersion.Contains("-dev-");
 #load "cake/package-checks.cake"
 #load "cake/test-results.cake"
 #load "cake/package-tests.cake"
+#load "cake/versioning.cake"
 
 //////////////////////////////////////////////////////////////////////
 // CLEAN
@@ -171,7 +153,7 @@ Task("InstallNuGetGuiRunner")
 Task("InstallNuGetPackage")
 	.Does(() =>
 	{
-		InstallPackage(NUGET_PACKAGE, NUGET_TEST_DIR);
+		InstallPackage(NuGetPackage, NUGET_TEST_DIR);
 	});
 
 Task("VerifyNuGetPackage")
@@ -219,7 +201,7 @@ Task("InstallChocolateyRunner")
 Task("InstallChocolateyPackage")
 	.Does(() =>
 	{
-		InstallPackage(CHOCO_PACKAGE, CHOCO_TEST_DIR);
+		InstallPackage(ChocoPackage, CHOCO_TEST_DIR);
 	});
 
 Task("VerifyChocolateyPackage")
@@ -278,13 +260,13 @@ Task("PublishToMyGet")
 	.IsDependentOn("Package")
 	.Does(() =>
 	{
-		NuGetPush(NUGET_PACKAGE, new NuGetPushSettings()
+		NuGetPush(NuGetPackage, new NuGetPushSettings()
 		{
 			ApiKey = MYGET_API_KEY,
 			Source = MYGET_PUSH_URL
 		});
 
-		ChocolateyPush(CHOCO_PACKAGE, new ChocolateyPushSettings()
+		ChocolateyPush(ChocoPackage, new ChocolateyPushSettings()
 		{
 			ApiKey = MYGET_API_KEY,
 			Source = MYGET_PUSH_URL
@@ -316,8 +298,8 @@ Task("Publish")
 Task("Appveyor")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
-	.IsDependentOn("Package")
-	.IsDependentOn("Publish");
+	.IsDependentOn("Package");
+	//.IsDependentOn("Publish");
 
 Task("Full")
 	.IsDependentOn("Build")
