@@ -256,7 +256,7 @@ void InstallPackage(string package, string testDir)
 //////////////////////////////////////////////////////////////////////
 
 Task("PublishToMyGet")
-	.WithCriteria(IsProductionRelease || IsDevelopmentRelease)
+	.WithCriteria(() => IsProductionRelease || IsDevelopmentRelease)
 	.IsDependentOn("Package")
 	.Does(() =>
 	{
