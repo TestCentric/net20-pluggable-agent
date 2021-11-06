@@ -38,6 +38,8 @@ static string PROJECT_DIR; PROJECT_DIR = Context.Environment.WorkingDirectory.Fu
 static string BIN_DIR; BIN_DIR = $"{PROJECT_DIR}bin/{configuration}/";
 const string PACKAGE_DIR = "package/";
 const string PACKAGE_TEST_DIR = PACKAGE_DIR + "test/";
+const string NUGET_TEST_DIR = PACKAGE_TEST_DIR + NUGET_ID;
+const string CHOCO_TEST_DIR = PACKAGE_TEST_DIR + CHOCO_ID;
 
 // Package sources for nuget restore
 static readonly string[] PACKAGE_SOURCES = {
@@ -45,14 +47,6 @@ static readonly string[] PACKAGE_SOURCES = {
 	"https://www.myget.org/F/nunit/api/v2",
 	"https://www.myget.org/F/testcentric/api/v2"
 };
-
-// Packaging
-readonly string NUGET_PACKAGE_NAME = $"{NUGET_ID}.{PackageVersion}.nupkg";
-readonly string NUGET_PACKAGE = PACKAGE_DIR + NUGET_PACKAGE_NAME;
-const string NUGET_TEST_DIR = PACKAGE_TEST_DIR + NUGET_ID;
-readonly string CHOCO_PACKAGE_NAME = $"{CHOCO_ID}.{PackageVersion}.nupkg";
-readonly string CHOCO_PACKAGE = PACKAGE_DIR + CHOCO_PACKAGE_NAME;
-const string CHOCO_TEST_DIR = PACKAGE_TEST_DIR + CHOCO_ID;
 
 // Package content checking
 static readonly string[] LAUNCHER_FILES = {
