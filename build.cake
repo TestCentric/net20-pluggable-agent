@@ -23,7 +23,7 @@ Setup((context) =>
 {
 	PackageVersion = new BuildVersion(context).PackageVersion;
 	IsProductionRelease = !PackageVersion.Contains("-");
-	IsDevelopmentRelease = PackageVersion.Contains("-dev-");
+	IsDevelopmentRelease = PackageVersion.Contains("-dev");
 
 	NuGetPackageName = $"{NUGET_ID}.{PackageVersion}.nupkg";
 	NuGetPackage = PACKAGE_DIR + NuGetPackageName;
@@ -298,8 +298,8 @@ Task("Publish")
 Task("Appveyor")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
-	.IsDependentOn("Package");
-	//.IsDependentOn("Publish");
+	.IsDependentOn("Package")
+	.IsDependentOn("Publish");
 
 Task("Full")
 	.IsDependentOn("Build")
