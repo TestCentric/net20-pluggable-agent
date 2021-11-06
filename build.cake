@@ -298,8 +298,8 @@ Task("Publish")
 Task("Appveyor")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
-	.IsDependentOn("Package");
-	//.IsDependentOn("Publish");
+	.IsDependentOn("Package")
+	.IsDependentOn("Publish");
 
 Task("Full")
 	.IsDependentOn("Build")
