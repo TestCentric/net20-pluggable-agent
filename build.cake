@@ -262,7 +262,7 @@ Task("PublishToMyGet")
 	{
 		NuGetPush(NuGetPackage, new NuGetPushSettings()
 		{
-			ApiKey = MYGET_API_KEY,
+			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
 		});
 
