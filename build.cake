@@ -256,19 +256,19 @@ void InstallPackage(string package, string testDir)
 //////////////////////////////////////////////////////////////////////
 
 Task("PublishToMyGet")
-	.WithCriteria(IsProductionRelease || IsDevelopmentRelease)
+	.WithCriteria(() => IsProductionRelease || IsDevelopmentRelease)
 	.IsDependentOn("Package")
 	.Does(() =>
 	{
 		NuGetPush(NuGetPackage, new NuGetPushSettings()
 		{
-			ApiKey = MYGET_API_KEY,
+			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
 		});
 
 		ChocolateyPush(ChocoPackage, new ChocolateyPushSettings()
 		{
-			ApiKey = MYGET_API_KEY,
+			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
 		});
 	});
