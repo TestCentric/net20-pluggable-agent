@@ -268,7 +268,7 @@ Task("PublishToMyGet")
 
 		ChocolateyPush(ChocoPackage, new ChocolateyPushSettings()
 		{
-			ApiKey = MYGET_API_KEY,
+			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
 		});
 	});
