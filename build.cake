@@ -103,7 +103,7 @@ Task("NuGetRestore")
 Task("Build")
 	.IsDependentOn("Clean")
 	.IsDependentOn("NuGetRestore")
-	//.IsDependentOn("CheckHeaders")
+	.IsDependentOn("CheckHeaders")
 	.Does<BuildParameters>((parameters) =>
 	{
 		if (IsRunningOnWindows())

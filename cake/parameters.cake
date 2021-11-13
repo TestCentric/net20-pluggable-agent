@@ -1,3 +1,4 @@
+#load "./check-headers.cake"
 #load "./package-checks.cake"
 #load "./test-results.cake"
 #load "./package-tests.cake"
