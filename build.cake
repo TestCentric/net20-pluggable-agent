@@ -76,10 +76,20 @@ Task("CleanAll")
 // INITIALIZE FOR BUILD
 //////////////////////////////////////////////////////////////////////
 
+static readonly string[] PACKAGE_SOURCES =
+{
+   "https://www.nuget.org/api/v2",
+   "https://www.myget.org/F/nunit/api/v2",
+   "https://www.myget.org/F/testcentric/api/v2"
+};
+
 Task("NuGetRestore")
     .Does(() =>
 	{
-		NuGetRestore(SOLUTION_FILE);
+		NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings()
+		{
+			Source = PACKAGE_SOURCES
+		});
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -157,13 +167,13 @@ Task("BuildChocolateyPackage")
 Task("InstallNuGetGuiRunner")
 	.Does<BuildParameters>((parameters) =>
 	{
-		InstallGuiRunner(GUI_RUNNER_NUGET_ID, parameters.NuGetTestDirectory);
+		InstallGuiRunner(GUI_RUNNER_NUGET_ID, parameters.PackageTestDirectory);
 	});
 
 Task("InstallChocolateyRunner")
 	.Does<BuildParameters>((parameters) =>
 	{
-		InstallGuiRunner(GUI_RUNNER_CHOCO_ID, parameters.ChocolateyTestDirectory);
+		InstallGuiRunner(GUI_RUNNER_CHOCO_ID, parameters.PackageTestDirectory);
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -249,6 +259,7 @@ void InstallGuiRunner(string packageId, string testDir)
 		new NuGetInstallSettings()
 		{
 			Version = GUI_RUNNER_VERSION,
+			Source = PACKAGE_SOURCES,
 			OutputDirectory = testDir
 		});
 }
