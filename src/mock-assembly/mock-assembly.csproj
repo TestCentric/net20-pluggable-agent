@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>NUnit.Tests</RootNamespace>
     <TargetFrameworks>net20;net35</TargetFrameworks>
-    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\tests\</OutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>

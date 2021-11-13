@@ -27,7 +27,7 @@
     <file src="../testcentric.png" />
     <file src="../LICENSE.txt" target="tools" />
     <file src="../CHANGES.txt" target="tools" />
-    <file src="../VERIFICATION.txt" target="tools" />
+    <file src="VERIFICATION.txt" target="tools" />
     <file src="../bin/Release/net20-agent-launcher.dll" target="tools" />
     <file src="../bin/Release/nunit.engine.api.dll" target="tools" />
     <file src="../bin/Release/testcentric.engine.api.dll" target="tools" />

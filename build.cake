@@ -1,58 +1,58 @@
 #tool nuget:?package=GitVersion.CommandLine&version=5.0.0
 
 //////////////////////////////////////////////////////////////////////
+// PROJECT-SPECIFIC CONSTANTS
+//////////////////////////////////////////////////////////////////////
+
+const string NUGET_ID = "NUnit.Extension.Net20PluggableAgent";
+const string CHOCO_ID = "nunit-extension-net20-pluggable-agent";
+
+const string SOLUTION_FILE = "net20-pluggable-agent.sln";
+const string OUTPUT_ASSEMBLY = "net20-pluggable-agent.dll";
+const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
+const string MOCK_ASSEMBLY = "mock-assembly.dll";
+
+#load "cake/parameters.cake"
+
+//////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument("target", "Default");
-string configuration = Argument("configuration", DEFAULT_CONFIGURATION);
 
-// Additional Argument
+// Additional Arguments
 //
-// --packageVersion=VERSION bypasses GitVersion and causes the specified
-//                          version to be used instead. (versioning.cake)
+// --configuration=CONFIGURATION (parameters.cake)
+//     Sets the configuration (default is specified in DEFAULT_CONFIGURATION)
+//
+// --packageVersion=VERSION (versioning.cake)
+//     Bypasses GitVersion and causes the specified version to be used instead.
   
 //////////////////////////////////////////////////////////////////////
 // SETUP
 //////////////////////////////////////////////////////////////////////
 
-string PackageVersion, NuGetPackageName, NuGetPackage, ChocoPackageName, ChocoPackage;
-bool IsDevelopmentRelease, IsProductionRelease;
-
-Setup((context) =>
+Setup<BuildParameters>((context) =>
 {
-	PackageVersion = new BuildVersion(context).PackageVersion;
-	IsProductionRelease = !PackageVersion.Contains("-");
-	IsDevelopmentRelease = PackageVersion.Contains("-dev");
+	var parameters = new BuildParameters(context);
 
-	NuGetPackageName = $"{NUGET_ID}.{PackageVersion}.nupkg";
-	NuGetPackage = PACKAGE_DIR + NuGetPackageName;
-	ChocoPackageName = $"{CHOCO_ID}.{PackageVersion}.nupkg";
-	ChocoPackage = PACKAGE_DIR + ChocoPackageName;
-
-	Information($"Net20PluggableAgent {configuration} version {PackageVersion}");
+	Information($"Net20PluggableAgent {parameters.Configuration} version {parameters.PackageVersion}");
 
 	if (BuildSystem.IsRunningOnAppVeyor)
-		AppVeyor.UpdateBuildVersion(PackageVersion);
-});
+		AppVeyor.UpdateBuildVersion(parameters.PackageVersion);
 
-// Can't load the lower level scripts until  both
-// configuration and PackageVersion are set.
-#load "cake/constants.cake"
-#load "cake/package-checks.cake"
-#load "cake/test-results.cake"
-#load "cake/package-tests.cake"
-#load "cake/versioning.cake"
+	return parameters;
+});
 
 //////////////////////////////////////////////////////////////////////
 // CLEAN
 //////////////////////////////////////////////////////////////////////
 
 Task("Clean")
-    .Does(() =>
-{
-    CleanDirectory(BIN_DIR);
-});
+	.Does<BuildParameters>((parameters) =>
+	{
+		CleanDirectory(parameters.OutputDirectory);
+	});
 
 //////////////////////////////////////////////////////////////////////
 // DELETE ALL OBJ DIRECTORIES
@@ -78,12 +78,9 @@ Task("CleanAll")
 
 Task("NuGetRestore")
     .Does(() =>
-{
-    NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings()
 	{
-		Source = PACKAGE_SOURCES
+		NuGetRestore(SOLUTION_FILE);
 	});
-});
 
 //////////////////////////////////////////////////////////////////////
 // BUILD
@@ -91,15 +88,12 @@ Task("NuGetRestore")
 
 Task("Build")
     .IsDependentOn("NuGetRestore")
-    .Does(() =>
-    {
-		//if (binaries != null)
-		//    throw new Exception("The --binaries option may only be specified when re-packaging an existing build.");
-
-		if(IsRunningOnWindows())
+	.Does<BuildParameters>((parameters) =>
+	{
+		if (IsRunningOnWindows())
 		{
 			MSBuild(SOLUTION_FILE, new MSBuildSettings()
-				.SetConfiguration(configuration)
+				.SetConfiguration(parameters.Configuration)
 				.SetMSBuildPlatform(MSBuildPlatform.Automatic)
 				.SetVerbosity(Verbosity.Minimal)
 				.SetNodeReuse(false)
@@ -110,7 +104,7 @@ Task("Build")
 		{
 			XBuild(SOLUTION_FILE, new XBuildSettings()
 				.WithTarget("Build")
-				.WithProperty("Configuration", configuration)
+				.WithProperty("Configuration", parameters.Configuration)
 				.SetVerbosity(Verbosity.Minimal)
 			);
 		}
@@ -122,45 +116,91 @@ Task("Build")
 
 Task("Test")
 	.IsDependentOn("Build")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		StartProcess(BIN_DIR + UNIT_TEST_ASSEMBLY);
+		StartProcess(parameters.OutputDirectory + UNIT_TEST_ASSEMBLY);
 	});
 
 //////////////////////////////////////////////////////////////////////
-// NUGET PACKAGING
+// BUILD PACKAGES
 //////////////////////////////////////////////////////////////////////
 
 Task("BuildNuGetPackage")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		CreateDirectory(PACKAGE_DIR);
+		CreateDirectory(parameters.PackageDirectory);
 
 		NuGetPack("nuget/Net20PluggableAgent.nuspec", new NuGetPackSettings()
 		{
-			Version = PackageVersion,
-			OutputDirectory = PACKAGE_DIR,
+			Version = parameters.PackageVersion,
+			OutputDirectory = parameters.PackageDirectory,
 			NoPackageAnalysis = true
 		});
 	});
 
-Task("InstallNuGetGuiRunner")
-	.Does(() =>
+Task("BuildChocolateyPackage")
+	.Does<BuildParameters>((parameters) =>
 	{
-		InstallGuiRunner(GUI_RUNNER_NUGET_ID);
+		CreateDirectory(parameters.PackageDirectory);
+
+		ChocolateyPack("choco/net20-pluggable-agent.nuspec", new ChocolateyPackSettings()
+		{
+			Version = parameters.PackageVersion,
+			OutputDirectory = parameters.PackageDirectory
+		});
 	});
 
-Task("InstallNuGetPackage")
-	.Does(() =>
+//////////////////////////////////////////////////////////////////////
+// INSTALL RUNNERS
+//////////////////////////////////////////////////////////////////////
+
+Task("InstallNuGetGuiRunner")
+	.Does<BuildParameters>((parameters) =>
 	{
-		InstallPackage(NuGetPackage, NUGET_TEST_DIR);
+		InstallGuiRunner(GUI_RUNNER_NUGET_ID, parameters.NuGetTestDirectory);
 	});
+
+Task("InstallChocolateyRunner")
+	.Does<BuildParameters>((parameters) =>
+	{
+		InstallGuiRunner(GUI_RUNNER_CHOCO_ID, parameters.ChocolateyTestDirectory);
+	});
+
+//////////////////////////////////////////////////////////////////////
+// INSTALL PACKAGES
+//////////////////////////////////////////////////////////////////////
+
+Task("InstallNuGetPackage")
+	.Does<BuildParameters>((parameters) =>
+	{
+		InstallPackage(parameters.NuGetPackage, parameters.NuGetTestDirectory);
+	});
+
+Task("InstallChocolateyPackage")
+	.Does<BuildParameters>((parameters) =>
+	{
+		InstallPackage(parameters.ChocoPackage, parameters.ChocolateyTestDirectory);
+	});
+
+//////////////////////////////////////////////////////////////////////
+// CHECK PACKAGE CONTENT
+//////////////////////////////////////////////////////////////////////
+
+static readonly string[] LAUNCHER_FILES = {
+	"net20-agent-launcher.dll", "nunit.engine.api.dll"
+};
+
+static readonly string[] AGENT_FILES = {
+	"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
+	"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
+	"nunit.engine.api.dll", "testcentric.engine.core.dll"
+};
 
 Task("VerifyNuGetPackage")
 	.IsDependentOn("InstallNuGetPackage")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		Check.That(NUGET_TEST_DIR,
+		Check.That(parameters.NuGetTestDirectory,
 		HasFiles("LICENSE.txt", "CHANGES.txt"),
 			HasDirectory("tools").WithFiles(LAUNCHER_FILES),
 			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
@@ -168,74 +208,48 @@ Task("VerifyNuGetPackage")
 		Information("  SUCCESS: All checks were successful");
 	});
 
-Task("TestNuGetPackage")
-	.IsDependentOn("InstallNuGetGuiRunner")
-	.IsDependentOn("InstallNuGetPackage")
-	.Does(() =>
-	{
-		new PackageTester(Context, PackageVersion, NUGET_ID, NUGET_GUI_RUNNER).RunAllTests();
-	});
-
-//////////////////////////////////////////////////////////////////////
-// CHOCOLATEY PACKAGING
-//////////////////////////////////////////////////////////////////////
-
-Task("BuildChocolateyPackage")
-    .Does(() =>
-    {
-        CreateDirectory(PACKAGE_DIR);
-
-		ChocolateyPack("choco/net20-pluggable-agent.nuspec", new ChocolateyPackSettings()
-		{
-			Version = PackageVersion,
-			OutputDirectory = PACKAGE_DIR
-		});
-	});
-
-Task("InstallChocolateyRunner")
-	.Does(() =>
-	{
-		InstallGuiRunner(GUI_RUNNER_CHOCO_ID);
-	});
-
-Task("InstallChocolateyPackage")
-	.Does(() =>
-	{
-		InstallPackage(ChocoPackage, CHOCO_TEST_DIR);
-	});
-
 Task("VerifyChocolateyPackage")
 	.IsDependentOn("InstallChocolateyPackage")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		Check.That(CHOCO_TEST_DIR,
+		Check.That(parameters.ChocolateyTestDirectory,
 			HasDirectory("tools").WithFiles("LICENSE.txt", "CHANGES.txt", "VERIFICATION.txt").WithFiles(LAUNCHER_FILES),
 			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
 
 		Information("  SUCCESS: All checks were successful");
 	});
 
+//////////////////////////////////////////////////////////////////////
+// TEST PACKAGES
+//////////////////////////////////////////////////////////////////////
+
+Task("TestNuGetPackage")
+	.IsDependentOn("InstallNuGetGuiRunner")
+	.IsDependentOn("InstallNuGetPackage")
+	.Does<BuildParameters>((parameters) =>
+	{
+		new PackageTester(parameters, NUGET_ID, parameters.PackageTestDirectory + GUI_RUNNER_NUGET_ID).RunAllTests();
+	});
 
 Task("TestChocolateyPackage")
 	.IsDependentOn("InstallChocolateyRunner")
 	.IsDependentOn("InstallChocolateyPackage")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		new PackageTester(Context, PackageVersion, CHOCO_ID, CHOCO_GUI_RUNNER).RunAllTests();
+		new PackageTester(parameters, CHOCO_ID, parameters.PackageTestDirectory + GUI_RUNNER_CHOCO_ID).RunAllTests();
 	});
 
 //////////////////////////////////////////////////////////////////////
 // PACKAGING HELPERS
 //////////////////////////////////////////////////////////////////////
 
-void InstallGuiRunner(string packageId)
+void InstallGuiRunner(string packageId, string testDir)
 {
 	NuGetInstall(packageId,
 		new NuGetInstallSettings()
 		{
 			Version = GUI_RUNNER_VERSION,
-			Source = PACKAGE_SOURCES,
-			OutputDirectory = PACKAGE_TEST_DIR
+			OutputDirectory = testDir
 		});
 }
 
@@ -256,17 +270,17 @@ void InstallPackage(string package, string testDir)
 //////////////////////////////////////////////////////////////////////
 
 Task("PublishToMyGet")
-	.WithCriteria(() => IsProductionRelease || IsDevelopmentRelease)
+	.WithCriteria<BuildParameters>((parameters) => parameters.IsProductionRelease || parameters.IsDevelopmentRelease)
 	.IsDependentOn("Package")
-	.Does(() =>
+	.Does<BuildParameters>((parameters) =>
 	{
-		NuGetPush(NuGetPackage, new NuGetPushSettings()
+		NuGetPush(parameters.NuGetPackage, new NuGetPushSettings()
 		{
 			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
 		});
 
-		ChocolateyPush(ChocoPackage, new ChocolateyPushSettings()
+		ChocolateyPush(parameters.ChocoPackage, new ChocolateyPushSettings()
 		{
 			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
