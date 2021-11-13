@@ -122,7 +122,7 @@ public class TestReport
 			var resultAssembly = result.Assemblies[i];
 			if (expectedAssembly.Name != resultAssembly.Name)
 				Errors.Add($"   Expected: Assembly name {expectedAssembly.Name}\r\n    But was: {resultAssembly.Name}");
-			if (expectedAssembly.Runtime != resultAssembly.Runtime)
+			if (expectedAssembly.Runtime != null && expectedAssembly.Runtime != resultAssembly.Runtime)
 				Errors.Add($"   Expected: Target runtime {expectedAssembly.Runtime}\r\n    But was: {resultAssembly.Runtime}");
         }
 	}

@@ -51,7 +51,11 @@ Setup<BuildParameters>((context) =>
 Task("Clean")
 	.Does<BuildParameters>((parameters) =>
 	{
+		Information("Cleaning " + parameters.OutputDirectory);
 		CleanDirectory(parameters.OutputDirectory);
+
+		Information("Cleaning " + parameters.PackageTestDirectory);
+		CleanDirectory(parameters.PackageTestDirectory);
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -97,7 +101,9 @@ Task("NuGetRestore")
 //////////////////////////////////////////////////////////////////////
 
 Task("Build")
-    .IsDependentOn("NuGetRestore")
+	.IsDependentOn("Clean")
+	.IsDependentOn("NuGetRestore")
+	//.IsDependentOn("CheckHeaders")
 	.Does<BuildParameters>((parameters) =>
 	{
 		if (IsRunningOnWindows())
@@ -238,7 +244,7 @@ Task("TestNuGetPackage")
 	.IsDependentOn("InstallNuGetPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
-		new PackageTester(parameters, NUGET_ID, parameters.PackageTestDirectory + GUI_RUNNER_NUGET_ID).RunAllTests();
+		new NuGetPackageTester(parameters).RunAllTests();
 	});
 
 Task("TestChocolateyPackage")
@@ -246,7 +252,7 @@ Task("TestChocolateyPackage")
 	.IsDependentOn("InstallChocolateyPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
-		new PackageTester(parameters, CHOCO_ID, parameters.PackageTestDirectory + GUI_RUNNER_CHOCO_ID).RunAllTests();
+		new ChocolateyPackageTester(parameters).RunAllTests();
 	});
 
 //////////////////////////////////////////////////////////////////////

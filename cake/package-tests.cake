@@ -3,7 +3,7 @@ const string GUI_RUNNER_NUGET_ID = "TestCentric.GuiRunner";
 const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
 const string GUI_RUNNER_VERSION = "2.0.0-dev00075";
 
-public class PackageTester
+public abstract class PackageTester
 {
     const string TEST_RESULT = "TestResult.xml";
 
@@ -17,66 +17,42 @@ public class PackageTester
         Skipped = 7,
         Assemblies = new AssemblyResult[]
         {
-            new AssemblyResult() { Name = MOCK_ASSEMBLY, Runtime = "net20" }
+            new AssemblyResult() { Name = MOCK_ASSEMBLY }
         }
     };
 
     protected BuildParameters _parameters;
     protected ICakeContext _context;
 
-    public PackageTester(BuildParameters parameters, string packageId, string guiRunner)
+    public PackageTester(BuildParameters parameters)
     {
         _parameters = parameters;
         _context = parameters.Context;
 
-        PackageId = packageId;
-        PackageVersion = parameters.PackageVersion;
-        GuiRunner = $"{guiRunner}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
+        GuiRunner = _parameters.PackageTestDirectory + $"{RunnerId}.{GUI_RUNNER_VERSION}/tools/testcentric.exe";
     }
 
-    protected string PackageId { get; }
-    protected string PackageVersion { get; }
-    protected string PackageTestDirectory => _parameters.PackageTestDirectory + PackageId;
+    protected abstract string PackageId { get; }
+    protected abstract string RunnerId { get; }
 
     protected string GuiRunner { get; }
 
     public void RunAllTests()
     {
-        try
+        int errors = 0;
+        foreach (var runtime in new[] { "net20", "net35" })
         {
-            int errors = 0;
-            foreach (var runtime in new[] { "net20", "net35" })
-            {
-                _context.Information("Running mock-assembly tests under " + runtime);
+            _context.Information($"Running {runtime} mock-assembly tests");
 
-                var actual = RunTest(runtime); Console.WriteLine("Ran test");
+            var actual = RunTest(runtime);
 
-                var report = new TestReport(EXPECTED_RESULT, actual); Console.WriteLine("Got report");
-                errors += report.Errors.Count;
-                report.DisplayErrors();
-            }
-
-            if (errors > 0)
-                throw new System.Exception("A package test failed!");
+            var report = new TestReport(EXPECTED_RESULT, actual);
+            errors += report.Errors.Count;
+            report.DisplayErrors();
         }
-        finally
-        {
-            // We must delete the test directory so that we don't have both
-            // the nuget and chocolatey packages installed at the same time.
-            //RemoveTestDirectory();
-        }
-    }
 
-    private void RemoveTestDirectory()
-    {
-        _context.Information("Removing package test directory");
-
-        _context.DeleteDirectory(
-            PackageTestDirectory,
-            new DeleteDirectorySettings()
-            {
-                Recursive = true
-            });
+        if (errors > 0)
+            throw new System.Exception("A package test failed!");
     }
 
     private ActualResult RunTest(string runtime)
@@ -94,11 +70,25 @@ public class PackageTester
 
     public void RunGuiUnattended(string testAssembly)
     {
-        Console.WriteLine($"Running Gui at {GuiRunner}");
-        Console.WriteLine($"  args: {testAssembly} --run --unattended");
         _context.StartProcess(GuiRunner, new ProcessSettings()
         {
             Arguments = $"{testAssembly} --run --unattended"
         });
     }
+}
+
+public class NuGetPackageTester : PackageTester
+{
+    public NuGetPackageTester(BuildParameters parameters) : base(parameters) { }
+
+    protected override string PackageId => NUGET_ID;
+    protected override string RunnerId => GUI_RUNNER_NUGET_ID;
+}
+
+public class ChocolateyPackageTester : PackageTester
+{
+    public ChocolateyPackageTester(BuildParameters parameters) : base(parameters) { }
+
+    protected override string PackageId => CHOCO_ID;
+    protected override string RunnerId => GUI_RUNNER_CHOCO_ID;
 }
