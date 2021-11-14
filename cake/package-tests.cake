@@ -1,7 +1,7 @@
 // Package Testing
 const string GUI_RUNNER_NUGET_ID = "TestCentric.GuiRunner";
 const string GUI_RUNNER_CHOCO_ID = "testcentric-gui";
-const string GUI_RUNNER_VERSION = "2.0.0-dev00075";
+const string GUI_RUNNER_VERSION = "2.0.0-dev00079";
 
 public abstract class PackageTester
 {
