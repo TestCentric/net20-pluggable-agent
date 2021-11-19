@@ -12,7 +12,9 @@ const string OUTPUT_ASSEMBLY = "net20-pluggable-agent.dll";
 const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
-#load "cake/parameters.cake"
+const string DEFAULT_VERSION = "1.0.0";
+
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00006
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -20,7 +22,7 @@ const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
 var target = Argument("target", "Default");
 
-// Additional Arguments
+// Additional Arguments Defined by TestCentric.Cake.Recipe
 //
 // --configuration=CONFIGURATION (parameters.cake)
 //     Sets the configuration (default is specified in DEFAULT_CONFIGURATION)
@@ -167,35 +169,43 @@ Task("BuildChocolateyPackage")
 	});
 
 //////////////////////////////////////////////////////////////////////
-// INSTALL RUNNERS
-//////////////////////////////////////////////////////////////////////
-
-Task("InstallNuGetGuiRunner")
-	.Does<BuildParameters>((parameters) =>
-	{
-		InstallGuiRunner(GUI_RUNNER_NUGET_ID, parameters.PackageTestDirectory);
-	});
-
-Task("InstallChocolateyRunner")
-	.Does<BuildParameters>((parameters) =>
-	{
-		InstallGuiRunner(GUI_RUNNER_CHOCO_ID, parameters.PackageTestDirectory);
-	});
-
-//////////////////////////////////////////////////////////////////////
 // INSTALL PACKAGES
 //////////////////////////////////////////////////////////////////////
 
 Task("InstallNuGetPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
-		InstallPackage(parameters.NuGetPackage, parameters.NuGetTestDirectory);
+		if (System.IO.Directory.Exists(parameters.NuGetTestDirectory))
+			DeleteDirectory(parameters.NuGetTestDirectory,
+				new DeleteDirectorySettings()
+				{
+					Recursive = true
+				});
+
+		CreateDirectory(parameters.NuGetTestDirectory);
+
+		Unzip(parameters.NuGetPackage, parameters.NuGetTestDirectory);
+
+		Information($"  Installed {System.IO.Path.GetFileName(parameters.NuGetPackage)}");
+		Information($"    at {parameters.NuGetTestDirectory}");
 	});
 
 Task("InstallChocolateyPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
-		InstallPackage(parameters.ChocoPackage, parameters.ChocolateyTestDirectory);
+		if (System.IO.Directory.Exists(parameters.ChocolateyTestDirectory))
+			DeleteDirectory(parameters.ChocolateyTestDirectory,
+				new DeleteDirectorySettings()
+				{
+					Recursive = true
+				});
+
+		CreateDirectory(parameters.ChocolateyTestDirectory);
+
+		Unzip(parameters.ChocolateyPackage, parameters.ChocolateyTestDirectory);
+
+		Information($"  Installed {System.IO.Path.GetFileName(parameters.ChocolateyPackage)}");
+		Information($"    at {parameters.ChocolateyTestDirectory}");
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -240,7 +250,6 @@ Task("VerifyChocolateyPackage")
 //////////////////////////////////////////////////////////////////////
 
 Task("TestNuGetPackage")
-	.IsDependentOn("InstallNuGetGuiRunner")
 	.IsDependentOn("InstallNuGetPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
@@ -248,39 +257,11 @@ Task("TestNuGetPackage")
 	});
 
 Task("TestChocolateyPackage")
-	.IsDependentOn("InstallChocolateyRunner")
 	.IsDependentOn("InstallChocolateyPackage")
 	.Does<BuildParameters>((parameters) =>
 	{
 		new ChocolateyPackageTester(parameters).RunAllTests();
 	});
-
-//////////////////////////////////////////////////////////////////////
-// PACKAGING HELPERS
-//////////////////////////////////////////////////////////////////////
-
-void InstallGuiRunner(string packageId, string testDir)
-{
-	NuGetInstall(packageId,
-		new NuGetInstallSettings()
-		{
-			Version = GUI_RUNNER_VERSION,
-			Source = PACKAGE_SOURCES,
-			OutputDirectory = testDir
-		});
-}
-
-void InstallPackage(string package, string testDir)
-{
-	if (System.IO.Directory.Exists(testDir))
-		DeleteDirectory(testDir, new DeleteDirectorySettings() { Recursive = true });
-	CreateDirectory(testDir);
-
-	Unzip(package, testDir);
-
-	Information($"  Installed {System.IO.Path.GetFileName(package)}");
-	Information($"    at {testDir}");
-}
 
 //////////////////////////////////////////////////////////////////////
 // PUBLISH PACKAGES
@@ -297,7 +278,7 @@ Task("PublishToMyGet")
 			Source = MYGET_PUSH_URL
 		});
 
-		ChocolateyPush(parameters.ChocoPackage, new ChocolateyPushSettings()
+		ChocolateyPush(parameters.ChocolateyPackage, new ChocolateyPushSettings()
 		{
 			ApiKey = EnvironmentVariable(MYGET_API_KEY),
 			Source = MYGET_PUSH_URL
