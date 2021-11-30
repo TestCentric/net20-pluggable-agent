@@ -33,16 +33,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "choco", "choco", "{7679FD0F
 		choco\net20-pluggable-agent.nuspec = choco\net20-pluggable-agent.nuspec
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cake", "cake", "{FB6EAF59-B1D0-4C75-A4D7-53A4195AC42F}"
-	ProjectSection(SolutionItems) = preProject
-		cake\check-headers.cake = cake\check-headers.cake
-		cake\package-checks.cake = cake\package-checks.cake
-		cake\package-tests.cake = cake\package-tests.cake
-		cake\parameters.cake = cake\parameters.cake
-		cake\test-results.cake = cake\test-results.cake
-		cake\versioning.cake = cake\versioning.cake
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,7 +110,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{68E72A39-0B0F-47DC-93F3-19E55A9C721C} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
 		{7679FD0F-A828-4151-805E-6C662EFBFFE5} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
-		{FB6EAF59-B1D0-4C75-A4D7-53A4195AC42F} = {49BC1DFB-828F-49F4-B2B4-752AB470481D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CAB7BD1E-1034-47CD-AA8E-FD4AC034193B}
