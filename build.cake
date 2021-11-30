@@ -12,9 +12,9 @@ const string OUTPUT_ASSEMBLY = "net20-pluggable-agent.dll";
 const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
-const string DEFAULT_VERSION = "1.0.0";
+const string DEFAULT_VERSION = "2.0.0";
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00006
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00009
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -37,6 +37,7 @@ var target = Argument("target", "Default");
 Setup<BuildParameters>((context) =>
 {
 	var parameters = new BuildParameters(context);
+	parameters.GuiVersion = "2.0.0-dev00081";
 
 	Information($"Net20PluggableAgent {parameters.Configuration} version {parameters.PackageVersion}");
 
