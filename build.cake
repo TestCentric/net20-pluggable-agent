@@ -292,17 +292,8 @@ Task("PublishToMyGet")
 		else
 		try
 		{
-			NuGetPush(parameters.NuGetPackage, new NuGetPushSettings()
-			{
-				ApiKey = EnvironmentVariable(MYGET_API_KEY),
-				Source = MYGET_PUSH_URL
-			});
-
-			ChocolateyPush(parameters.ChocolateyPackage, new ChocolateyPushSettings()
-			{
-				ApiKey = EnvironmentVariable(MYGET_API_KEY),
-				Source = MYGET_PUSH_URL
-			});
+			PushNuGetPackage(parameters.NuGetPackage, MYGET_API_KEY, MYGET_PUSH_URL);
+			PushChocolateyPackage(parameters.ChocolateyPackage, MYGET_API_KEY, MYGET_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -321,11 +312,7 @@ Task("PublishToNuGet")
 		else
 		try
 		{
-			NuGetPush(parameters.NuGetPackage, new NuGetPushSettings()
-			{
-				ApiKey = EnvironmentVariable(NUGET_API_KEY),
-				Source = NUGET_PUSH_URL
-			});
+			PushNuGetPackage(parameters.NuGetPackage, NUGET_API_KEY, NUGET_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -344,11 +331,7 @@ Task("PublishToChocolatey")
 		else
 		try
 		{
-			ChocolateyPush(parameters.ChocolateyPackage, new ChocolateyPushSettings()
-			{
-				ApiKey = EnvironmentVariable(CHOCO_API_KEY),
-				Source = CHOCO_PUSH_URL
-			});
+			PushChocolateyPackage(parameters.ChocolateyPackage, CHOCO_API_KEY, CHOCO_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -356,24 +339,24 @@ Task("PublishToChocolatey")
 		}
 	});
 
-//private void PushNuGetPackage(FilePath package, string apiKey, string url)
-//{
-//	CheckPackageExists(package);
-//	NuGetPush(package, new NuGetPushSettings() { ApiKey = apiKey, Source = url });
-//}
+private void PushNuGetPackage(FilePath package, string apiKey, string url)
+{
+    CheckPackageExists(package);
+    NuGetPush(package, new NuGetPushSettings() { ApiKey = apiKey, Source = url });
+}
 
-//private void PushChocolateyPackage(FilePath package, string apiKey, string url)
-//{
-//	CheckPackageExists(package);
-//	ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = apiKey, Source = url });
-//}
+private void PushChocolateyPackage(FilePath package, string apiKey, string url)
+{
+    CheckPackageExists(package);
+    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = apiKey, Source = url });
+}
 
-//private void CheckPackageExists(FilePath package)
-//{
-//	if (!FileExists(package))
-//		throw new InvalidOperationException(
-//			$"Package not found: {package.GetFilename()}.\nCode may have changed since package was last built.");
-//}
+private void CheckPackageExists(FilePath package)
+{
+    if (!FileExists(package))
+        throw new InvalidOperationException(
+            $"Package not found: {package.GetFilename()}.\nCode may have changed since package was last built.");
+}
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
