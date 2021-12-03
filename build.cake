@@ -1,9 +1,11 @@
 #tool nuget:?package=GitVersion.CommandLine&version=5.0.0
+#tool nuget:?package=GitReleaseManager&version=0.11.0
 
 //////////////////////////////////////////////////////////////////////
 // PROJECT-SPECIFIC CONSTANTS
 //////////////////////////////////////////////////////////////////////
 
+const string TITLE = "Net20PluggableAgent";
 const string NUGET_ID = "NUnit.Extension.Net20PluggableAgent";
 const string CHOCO_ID = "nunit-extension-net20-pluggable-agent";
 
@@ -13,6 +15,9 @@ const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
 const string DEFAULT_VERSION = "2.0.0";
+
+const string GITHUB_OWNER = "TestCentric";
+const string GITHUB_REPO = "net20-pluggable-agent";
 
 #load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00009
 
@@ -342,13 +347,13 @@ Task("PublishToChocolatey")
 private void PushNuGetPackage(FilePath package, string apiKey, string url)
 {
     CheckPackageExists(package);
-    NuGetPush(package, new NuGetPushSettings() { ApiKey = apiKey, Source = url });
+    NuGetPush(package, new NuGetPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
 }
 
 private void PushChocolateyPackage(FilePath package, string apiKey, string url)
 {
     CheckPackageExists(package);
-    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = apiKey, Source = url });
+    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
 }
 
 private void CheckPackageExists(FilePath package)
@@ -357,6 +362,47 @@ private void CheckPackageExists(FilePath package)
         throw new InvalidOperationException(
             $"Package not found: {package.GetFilename()}.\nCode may have changed since package was last built.");
 }
+
+//////////////////////////////////////////////////////////////////////
+// CREATE A DRAFT RELEASE
+//////////////////////////////////////////////////////////////////////
+
+Task("CreateDraftRelease")
+	.Does<BuildParameters>((parameters) =>
+	{
+		if (parameters.BuildVersion.IsReleaseBranch)
+		{
+			// NOTE: Since this is a release branch, the pre-release label
+			// is "pre", which we don't want to use for the draft release.
+			// The branch name contains the full information to be used
+			// for both the name of the draft release and the milestone,
+			// i.e. release-2.0.0, release-2.0.0-beta2, etc.
+			string milestone = parameters.BranchName.Substring(8);
+			string releaseName = $"{TITLE} {milestone}";
+
+			Information($"Creating draft release for {releaseName}");
+
+			try
+			{
+				GitReleaseManagerCreate(EnvironmentVariable(GITHUB_ACCESS_TOKEN), GITHUB_OWNER, GITHUB_REPO, new GitReleaseManagerCreateSettings()
+				{
+					Name = releaseName,
+					Milestone = milestone
+				});
+			}
+			catch
+			{
+				Error($"Unable to create draft release for {releaseName}.");
+				Error($"Check that there is a {milestone} milestone with at least one closed issue.");
+				Error("");
+				throw;
+			}
+		}
+		else
+		{
+			Information("Skipping Release creation because this is not a release branch");
+		}
+	});
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
