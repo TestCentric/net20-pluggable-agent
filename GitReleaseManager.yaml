@@ -31,7 +31,7 @@ create:
     <li>For a chocolatey install: `nunit-extension-net20-pluggable-agent.{milestone}.nupkg`
     <li>For a nuget install: `NUnit.Extension.Net20PluggableAgent.{milestone}.nupkg`
     </ul>
-    You may also download the TestCentric GUI from
+    You may also download the Net20 Pluggable Agent from
     [chocolatey.org](https://chocolatey.org/packages/nunit-extension-net20-pluggable-agent/) 
     or [nuget.org](https://nuget.org/packages/NUnit.Extension.Net20PluggableAgent/).
   footer-includes-milestone: true
