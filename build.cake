@@ -1,9 +1,11 @@
 #tool nuget:?package=GitVersion.CommandLine&version=5.0.0
+#tool nuget:?package=GitReleaseManager&version=0.11.0
 
 //////////////////////////////////////////////////////////////////////
 // PROJECT-SPECIFIC CONSTANTS
 //////////////////////////////////////////////////////////////////////
 
+const string TITLE = "Net20PluggableAgent";
 const string NUGET_ID = "NUnit.Extension.Net20PluggableAgent";
 const string CHOCO_ID = "nunit-extension-net20-pluggable-agent";
 
@@ -13,6 +15,9 @@ const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
 const string DEFAULT_VERSION = "2.0.0";
+
+const string GITHUB_OWNER = "TestCentric";
+const string GITHUB_REPO = "net20-pluggable-agent";
 
 #load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00009
 
@@ -292,17 +297,8 @@ Task("PublishToMyGet")
 		else
 		try
 		{
-			NuGetPush(parameters.NuGetPackage, new NuGetPushSettings()
-			{
-				ApiKey = EnvironmentVariable(MYGET_API_KEY),
-				Source = MYGET_PUSH_URL
-			});
-
-			ChocolateyPush(parameters.ChocolateyPackage, new ChocolateyPushSettings()
-			{
-				ApiKey = EnvironmentVariable(MYGET_API_KEY),
-				Source = MYGET_PUSH_URL
-			});
+			PushNuGetPackage(parameters.NuGetPackage, MYGET_API_KEY, MYGET_PUSH_URL);
+			PushChocolateyPackage(parameters.ChocolateyPackage, MYGET_API_KEY, MYGET_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -321,11 +317,7 @@ Task("PublishToNuGet")
 		else
 		try
 		{
-			NuGetPush(parameters.NuGetPackage, new NuGetPushSettings()
-			{
-				ApiKey = EnvironmentVariable(NUGET_API_KEY),
-				Source = NUGET_PUSH_URL
-			});
+			PushNuGetPackage(parameters.NuGetPackage, NUGET_API_KEY, NUGET_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -344,11 +336,7 @@ Task("PublishToChocolatey")
 		else
 		try
 		{
-			ChocolateyPush(parameters.ChocolateyPackage, new ChocolateyPushSettings()
-			{
-				ApiKey = EnvironmentVariable(CHOCO_API_KEY),
-				Source = CHOCO_PUSH_URL
-			});
+			PushChocolateyPackage(parameters.ChocolateyPackage, CHOCO_API_KEY, CHOCO_PUSH_URL);
 		}
 		catch (Exception)
 		{
@@ -356,24 +344,91 @@ Task("PublishToChocolatey")
 		}
 	});
 
-//private void PushNuGetPackage(FilePath package, string apiKey, string url)
-//{
-//	CheckPackageExists(package);
-//	NuGetPush(package, new NuGetPushSettings() { ApiKey = apiKey, Source = url });
-//}
+private void PushNuGetPackage(FilePath package, string apiKey, string url)
+{
+    CheckPackageExists(package);
+    NuGetPush(package, new NuGetPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
+}
 
-//private void PushChocolateyPackage(FilePath package, string apiKey, string url)
-//{
-//	CheckPackageExists(package);
-//	ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = apiKey, Source = url });
-//}
+private void PushChocolateyPackage(FilePath package, string apiKey, string url)
+{
+    CheckPackageExists(package);
+    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
+}
 
-//private void CheckPackageExists(FilePath package)
-//{
-//	if (!FileExists(package))
-//		throw new InvalidOperationException(
-//			$"Package not found: {package.GetFilename()}.\nCode may have changed since package was last built.");
-//}
+private void CheckPackageExists(FilePath package)
+{
+    if (!FileExists(package))
+        throw new InvalidOperationException(
+            $"Package not found: {package.GetFilename()}.\nCode may have changed since package was last built.");
+}
+
+//////////////////////////////////////////////////////////////////////
+// CREATE A DRAFT RELEASE
+//////////////////////////////////////////////////////////////////////
+
+Task("CreateDraftRelease")
+	.Does<BuildParameters>((parameters) =>
+	{
+		if (parameters.BuildVersion.IsReleaseBranch)
+		{
+			// NOTE: Since this is a release branch, the pre-release label
+			// is "pre", which we don't want to use for the draft release.
+			// The branch name contains the full information to be used
+			// for both the name of the draft release and the milestone,
+			// i.e. release-2.0.0, release-2.0.0-beta2, etc.
+			string milestone = parameters.BranchName.Substring(8);
+			string releaseName = $"{TITLE} {milestone}";
+
+			Information($"Creating draft release for {releaseName}");
+
+			try
+			{
+				GitReleaseManagerCreate(EnvironmentVariable(GITHUB_ACCESS_TOKEN), GITHUB_OWNER, GITHUB_REPO, new GitReleaseManagerCreateSettings()
+				{
+					Name = releaseName,
+					Milestone = milestone
+				});
+			}
+			catch
+			{
+				Error($"Unable to create draft release for {releaseName}.");
+				Error($"Check that there is a {milestone} milestone with at least one closed issue.");
+				Error("");
+				throw;
+			}
+		}
+		else
+		{
+			Information("Skipping Release creation because this is not a release branch");
+		}
+	});
+
+//////////////////////////////////////////////////////////////////////
+// CREATE A PRODUCTION RELEASE
+//////////////////////////////////////////////////////////////////////
+
+Task("CreateProductionRelease")
+	.Does<BuildParameters>((parameters) =>
+	{
+		if (parameters.IsProductionRelease)
+		{
+			string token = EnvironmentVariable(GITHUB_ACCESS_TOKEN);
+			string tagName = parameters.PackageVersion;
+			string assets = IsRunningOnWindows()
+				? $"\"{parameters.NuGetPackage},{parameters.ChocolateyPackage}\""
+				: $"\"{parameters.NuGetPackage}\"";
+
+			Information($"Publishing release {tagName} to GitHub");
+
+			GitReleaseManagerAddAssets(token, GITHUB_OWNER, GITHUB_REPO, tagName, assets);
+			GitReleaseManagerClose(token, GITHUB_OWNER, GITHUB_REPO, tagName);
+		}
+		else
+		{
+			Information("Skipping CreateProductionRelease because this is not a production release");
+		}
+	});
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
@@ -398,7 +453,9 @@ Task("Appveyor")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
 	.IsDependentOn("Package")
-	.IsDependentOn("PublishPackages");
+	.IsDependentOn("PublishPackages")
+	.IsDependentOn("CreateDraftRelease")
+	.IsDependentOn("CreateProductionRelease");
 
 Task("Full")
 	.IsDependentOn("Build")
