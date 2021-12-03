@@ -26,18 +26,14 @@ create:
   include-footer: true
   footer-heading: Packages
   footer-content: >-
-    There are three different downloads for the GUI.
+    There are two different downloads for the agent.
     <ul>
-    <li>For a chocolatey install: `testcentric-gui.{milestone}.nupkg`
-    <li>For a nuget install: `TestCentric.GuiRunner.{milestone}.nupkg`
-    <li>For a zip install in a directory of your choice: `testcentric-gui-{milestone}.zip`
+    <li>For a chocolatey install: `nunit-extension-net20-pluggable-agent.{milestone}.nupkg`
+    <li>For a nuget install: `NUnit.Extension.Net20PluggableAgent.{milestone}.nupkg`
     </ul>
     You may also download the TestCentric GUI from
-    [chocolatey.org](https://chocolatey.org/packages/testcentric-gui/) 
-    or [nuget.org](https://nuget.org/packages/TestCentric.GuiRunner/).
-    <br><br>
-    **Note:** `TestCentric.Metadata.{milestone}.nupkg` is for our internal use
-    and is not needed to run TestCentric.
+    [chocolatey.org](https://chocolatey.org/packages/nunit-extension-net20-pluggable-agent/) 
+    or [nuget.org](https://nuget.org/packages/NUnit.Extension.Net20PluggableAgent/).
   footer-includes-milestone: true
   milestone-replace-text: '{milestone}'
   include-sha-section: true
