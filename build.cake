@@ -19,7 +19,7 @@ const string DEFAULT_VERSION = "2.0.0";
 const string GITHUB_OWNER = "TestCentric";
 const string GITHUB_REPO = "net20-pluggable-agent";
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00009
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00010
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -41,8 +41,12 @@ var target = Argument("target", "Default");
 
 Setup<BuildParameters>((context) =>
 {
-	var parameters = new BuildParameters(context);
-	parameters.GuiVersion = "2.0.0-dev00081";
+	var parameters = new BuildParameters(context)
+	{
+		NuGetId = "NUnit.Extension.Net20PluggableAgent",
+		ChocoId = "nunit-extension-net20-pluggable-agent",
+		GuiVersion = "2.0.0-dev00081"
+	};
 
 	Information($"Net20PluggableAgent {parameters.Configuration} version {parameters.PackageVersion}");
 
@@ -100,7 +104,8 @@ Task("NuGetRestore")
 	{
 		NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings()
 		{
-			Source = PACKAGE_SOURCES
+			Source = PACKAGE_SOURCES,
+			Verbosity = NuGetVerbosity.Detailed
 		});
 	});
 
