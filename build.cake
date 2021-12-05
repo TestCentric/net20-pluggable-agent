@@ -5,12 +5,11 @@
 // PROJECT-SPECIFIC CONSTANTS
 //////////////////////////////////////////////////////////////////////
 
-const string SOLUTION_FILE = "net20-pluggable-agent.sln";
 const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 
 const string DEFAULT_VERSION = "2.0.0";
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00014
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00015
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -28,12 +27,13 @@ Setup<BuildSettings>((context) =>
 	(
 		context: context,
 		title: "Net20PluggableAgent",
+		solutionFile: "net20-pluggable-agent.sln",
 		nugetId: "NUnit.Extension.Net20PluggableAgent",
 		chocoId: "nunit-extension-net20-pluggable-agent",
 		guiVersion: "2.0.0-dev00081",
 		githubOwner: "TestCentric",
 		githubRepository: "net20-pluggable-agent",
-		copyright: "Copyright (c) Charlie Poole and TestCentric Engine contributors." 
+		copyright: "Copyright (c) Charlie Poole and TestCentric Engine contributors."
 	);
 
 	Information($"Net20PluggableAgent {settings.Configuration} version {settings.PackageVersion}");
@@ -43,57 +43,6 @@ Setup<BuildSettings>((context) =>
 
 	return settings;
 });
-
-//////////////////////////////////////////////////////////////////////
-// INITIALIZE FOR BUILD
-//////////////////////////////////////////////////////////////////////
-
-static readonly string[] PACKAGE_SOURCES =
-{
-   "https://www.nuget.org/api/v2",
-   "https://www.myget.org/F/nunit/api/v2",
-   "https://www.myget.org/F/testcentric/api/v2"
-};
-
-Task("NuGetRestore")
-    .Does(() =>
-	{
-		NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings()
-		{
-			Source = PACKAGE_SOURCES,
-			Verbosity = NuGetVerbosity.Detailed
-		});
-	});
-
-//////////////////////////////////////////////////////////////////////
-// BUILD
-//////////////////////////////////////////////////////////////////////
-
-Task("Build")
-	.IsDependentOn("Clean")
-	.IsDependentOn("NuGetRestore")
-	.IsDependentOn("CheckHeaders")
-	.Does<BuildSettings>((settings) =>
-	{
-		if (IsRunningOnWindows())
-		{
-			MSBuild(SOLUTION_FILE, new MSBuildSettings()
-				.SetConfiguration(settings.Configuration)
-				.SetMSBuildPlatform(MSBuildPlatform.Automatic)
-				.SetVerbosity(Verbosity.Minimal)
-				.SetNodeReuse(false)
-				.SetPlatformTarget(PlatformTarget.MSIL)
-			);
-		}
-		else
-		{
-			XBuild(SOLUTION_FILE, new XBuildSettings()
-				.WithTarget("Build")
-				.WithProperty("Configuration", settings.Configuration)
-				.SetVerbosity(Verbosity.Minimal)
-			);
-		}
-    });
 
 //////////////////////////////////////////////////////////////////////
 // TEST
