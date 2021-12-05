@@ -10,7 +10,7 @@ const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
 
 const string DEFAULT_VERSION = "2.0.0";
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00013
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00014
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -43,38 +43,6 @@ Setup<BuildSettings>((context) =>
 
 	return settings;
 });
-
-//////////////////////////////////////////////////////////////////////
-// CLEAN
-//////////////////////////////////////////////////////////////////////
-
-Task("Clean")
-	.Does<BuildSettings>((settings) =>
-	{
-		Information("Cleaning " + settings.OutputDirectory);
-		CleanDirectory(settings.OutputDirectory);
-
-		Information("Cleaning " + settings.PackageTestDirectory);
-		CleanDirectory(settings.PackageTestDirectory);
-	});
-
-//////////////////////////////////////////////////////////////////////
-// DELETE ALL OBJ DIRECTORIES
-//////////////////////////////////////////////////////////////////////
-
-Task("DeleteObjectDirectories")
-	.Does(() =>
-	{
-		Information("Deleting object directories");
-
-		foreach (var dir in GetDirectories("src/**/obj/"))
-			DeleteDirectory(dir, new DeleteDirectorySettings() { Recursive = true });
-	});
-
-Task("CleanAll")
-	.Description("Perform standard 'Clean' followed by deleting object directories")
-	.IsDependentOn("Clean")
-	.IsDependentOn("DeleteObjectDirectories");
 
 //////////////////////////////////////////////////////////////////////
 // INITIALIZE FOR BUILD
@@ -293,8 +261,9 @@ Task("PublishToMyGet")
 			PushNuGetPackage(settings.NuGetPackage, settings.MyGetApiKey, settings.MyGetPushUrl);
 			PushChocolateyPackage(settings.ChocolateyPackage, settings.MyGetApiKey, settings.MyGetPushUrl);
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			Error(ex.Message);
 			hadPublishingErrors = true;
 		}
 	});
@@ -312,8 +281,9 @@ Task("PublishToNuGet")
 		{
 			PushNuGetPackage(settings.NuGetPackage, settings.NuGetApiKey, settings.NuGetPushUrl);
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			Error(ex.Message);
 			hadPublishingErrors = true;
 		}
 	});
@@ -331,8 +301,9 @@ Task("PublishToChocolatey")
 		{
 			PushChocolateyPackage(settings.ChocolateyPackage, settings.ChocolateyApiKey, settings.ChocolateyPushUrl);
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			Error(ex.Message);
 			hadPublishingErrors = true;
 		}
 	});
