@@ -5,21 +5,12 @@
 // PROJECT-SPECIFIC CONSTANTS
 //////////////////////////////////////////////////////////////////////
 
-const string TITLE = "Net20PluggableAgent";
-const string NUGET_ID = "NUnit.Extension.Net20PluggableAgent";
-const string CHOCO_ID = "nunit-extension-net20-pluggable-agent";
-
 const string SOLUTION_FILE = "net20-pluggable-agent.sln";
-const string OUTPUT_ASSEMBLY = "net20-pluggable-agent.dll";
 const string UNIT_TEST_ASSEMBLY = "net20-agent-launcher.tests.exe";
-const string MOCK_ASSEMBLY = "mock-assembly.dll";
 
 const string DEFAULT_VERSION = "2.0.0";
 
-const string GITHUB_OWNER = "TestCentric";
-const string GITHUB_REPO = "net20-pluggable-agent";
-
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00010
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00012
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -29,7 +20,7 @@ var target = Argument("target", "Default");
 
 // Additional Arguments Defined by TestCentric.Cake.Recipe
 //
-// --configuration=CONFIGURATION (parameters.cake)
+// --configuration=CONFIGURATION (settings.cake)
 //     Sets the configuration (default is specified in DEFAULT_CONFIGURATION)
 //
 // --packageVersion=VERSION (versioning.cake)
@@ -39,21 +30,26 @@ var target = Argument("target", "Default");
 // SETUP
 //////////////////////////////////////////////////////////////////////
 
-Setup<BuildParameters>((context) =>
+Setup<BuildSettings>((context) =>
 {
-	var parameters = new BuildParameters(context)
-	{
-		NuGetId = "NUnit.Extension.Net20PluggableAgent",
-		ChocoId = "nunit-extension-net20-pluggable-agent",
-		GuiVersion = "2.0.0-dev00081"
-	};
+	var settings = BuildSettings.Initialize
+	(
+		context: context,
+		title: "Net20PluggableAgent",
+		nugetId: "NUnit.Extension.Net20PluggableAgent",
+		chocoId: "nunit-extension-net20-pluggable-agent",
+		guiVersion: "2.0.0-dev00081",
+		githubOwner: "TestCentric",
+		githubRepository: "net20-pluggable-agent",
+		copyright: "Copyright (c) Charlie Poole and TestCentric Engine contributors." 
+	);
 
-	Information($"Net20PluggableAgent {parameters.Configuration} version {parameters.PackageVersion}");
+	Information($"Net20PluggableAgent {settings.Configuration} version {settings.PackageVersion}");
 
 	if (BuildSystem.IsRunningOnAppVeyor)
-		AppVeyor.UpdateBuildVersion(parameters.PackageVersion);
+		AppVeyor.UpdateBuildVersion(settings.PackageVersion);
 
-	return parameters;
+	return settings;
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -61,13 +57,13 @@ Setup<BuildParameters>((context) =>
 //////////////////////////////////////////////////////////////////////
 
 Task("Clean")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		Information("Cleaning " + parameters.OutputDirectory);
-		CleanDirectory(parameters.OutputDirectory);
+		Information("Cleaning " + settings.OutputDirectory);
+		CleanDirectory(settings.OutputDirectory);
 
-		Information("Cleaning " + parameters.PackageTestDirectory);
-		CleanDirectory(parameters.PackageTestDirectory);
+		Information("Cleaning " + settings.PackageTestDirectory);
+		CleanDirectory(settings.PackageTestDirectory);
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -117,12 +113,12 @@ Task("Build")
 	.IsDependentOn("Clean")
 	.IsDependentOn("NuGetRestore")
 	.IsDependentOn("CheckHeaders")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
 		if (IsRunningOnWindows())
 		{
 			MSBuild(SOLUTION_FILE, new MSBuildSettings()
-				.SetConfiguration(parameters.Configuration)
+				.SetConfiguration(settings.Configuration)
 				.SetMSBuildPlatform(MSBuildPlatform.Automatic)
 				.SetVerbosity(Verbosity.Minimal)
 				.SetNodeReuse(false)
@@ -133,7 +129,7 @@ Task("Build")
 		{
 			XBuild(SOLUTION_FILE, new XBuildSettings()
 				.WithTarget("Build")
-				.WithProperty("Configuration", parameters.Configuration)
+				.WithProperty("Configuration", settings.Configuration)
 				.SetVerbosity(Verbosity.Minimal)
 			);
 		}
@@ -145,9 +141,9 @@ Task("Build")
 
 Task("Test")
 	.IsDependentOn("Build")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		StartProcess(parameters.OutputDirectory + UNIT_TEST_ASSEMBLY);
+		StartProcess(settings.OutputDirectory + UNIT_TEST_ASSEMBLY);
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -155,27 +151,27 @@ Task("Test")
 //////////////////////////////////////////////////////////////////////
 
 Task("BuildNuGetPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		CreateDirectory(parameters.PackageDirectory);
+		CreateDirectory(settings.PackageDirectory);
 
 		NuGetPack("nuget/Net20PluggableAgent.nuspec", new NuGetPackSettings()
 		{
-			Version = parameters.PackageVersion,
-			OutputDirectory = parameters.PackageDirectory,
+			Version = settings.PackageVersion,
+			OutputDirectory = settings.PackageDirectory,
 			NoPackageAnalysis = true
 		});
 	});
 
 Task("BuildChocolateyPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		CreateDirectory(parameters.PackageDirectory);
+		CreateDirectory(settings.PackageDirectory);
 
 		ChocolateyPack("choco/net20-pluggable-agent.nuspec", new ChocolateyPackSettings()
 		{
-			Version = parameters.PackageVersion,
-			OutputDirectory = parameters.PackageDirectory
+			Version = settings.PackageVersion,
+			OutputDirectory = settings.PackageDirectory
 		});
 	});
 
@@ -184,39 +180,39 @@ Task("BuildChocolateyPackage")
 //////////////////////////////////////////////////////////////////////
 
 Task("InstallNuGetPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (System.IO.Directory.Exists(parameters.NuGetTestDirectory))
-			DeleteDirectory(parameters.NuGetTestDirectory,
+		if (System.IO.Directory.Exists(settings.NuGetTestDirectory))
+			DeleteDirectory(settings.NuGetTestDirectory,
 				new DeleteDirectorySettings()
 				{
 					Recursive = true
 				});
 
-		CreateDirectory(parameters.NuGetTestDirectory);
+		CreateDirectory(settings.NuGetTestDirectory);
 
-		Unzip(parameters.NuGetPackage, parameters.NuGetTestDirectory);
+		Unzip(settings.NuGetPackage, settings.NuGetTestDirectory);
 
-		Information($"  Installed {System.IO.Path.GetFileName(parameters.NuGetPackage)}");
-		Information($"    at {parameters.NuGetTestDirectory}");
+		Information($"  Installed {System.IO.Path.GetFileName(settings.NuGetPackage)}");
+		Information($"    at {settings.NuGetTestDirectory}");
 	});
 
 Task("InstallChocolateyPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (System.IO.Directory.Exists(parameters.ChocolateyTestDirectory))
-			DeleteDirectory(parameters.ChocolateyTestDirectory,
+		if (System.IO.Directory.Exists(settings.ChocolateyTestDirectory))
+			DeleteDirectory(settings.ChocolateyTestDirectory,
 				new DeleteDirectorySettings()
 				{
 					Recursive = true
 				});
 
-		CreateDirectory(parameters.ChocolateyTestDirectory);
+		CreateDirectory(settings.ChocolateyTestDirectory);
 
-		Unzip(parameters.ChocolateyPackage, parameters.ChocolateyTestDirectory);
+		Unzip(settings.ChocolateyPackage, settings.ChocolateyTestDirectory);
 
-		Information($"  Installed {System.IO.Path.GetFileName(parameters.ChocolateyPackage)}");
-		Information($"    at {parameters.ChocolateyTestDirectory}");
+		Information($"  Installed {System.IO.Path.GetFileName(settings.ChocolateyPackage)}");
+		Information($"    at {settings.ChocolateyTestDirectory}");
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -235,9 +231,9 @@ static readonly string[] AGENT_FILES = {
 
 Task("VerifyNuGetPackage")
 	.IsDependentOn("InstallNuGetPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		Check.That(parameters.NuGetTestDirectory,
+		Check.That(settings.NuGetTestDirectory,
 		HasFiles("LICENSE.txt", "CHANGES.txt"),
 			HasDirectory("tools").WithFiles(LAUNCHER_FILES),
 			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
@@ -247,9 +243,9 @@ Task("VerifyNuGetPackage")
 
 Task("VerifyChocolateyPackage")
 	.IsDependentOn("InstallChocolateyPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		Check.That(parameters.ChocolateyTestDirectory,
+		Check.That(settings.ChocolateyTestDirectory,
 			HasDirectory("tools").WithFiles("LICENSE.txt", "CHANGES.txt", "VERIFICATION.txt").WithFiles(LAUNCHER_FILES),
 			HasDirectory("tools/agent").WithFiles(AGENT_FILES));
 
@@ -262,16 +258,16 @@ Task("VerifyChocolateyPackage")
 
 Task("TestNuGetPackage")
 	.IsDependentOn("InstallNuGetPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		new NuGetPackageTester(parameters).RunAllTests();
+		new NuGetPackageTester(settings).RunAllTests();
 	});
 
 Task("TestChocolateyPackage")
 	.IsDependentOn("InstallChocolateyPackage")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		new ChocolateyPackageTester(parameters).RunAllTests();
+		new ChocolateyPackageTester(settings).RunAllTests();
 	});
 
 //////////////////////////////////////////////////////////////////////
@@ -295,15 +291,15 @@ Task("PublishPackages")
 // which depends on it, or directly when recovering from errors.
 Task("PublishToMyGet")
 	.Description("Publish packages to MyGet")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (!parameters.IsProductionRelease && !parameters.IsDevelopmentRelease)
+		if (!settings.IsProductionRelease && !settings.IsDevelopmentRelease)
 			Information("Nothing to publish to MyGet from this run.");
 		else
 		try
 		{
-			PushNuGetPackage(parameters.NuGetPackage, MYGET_API_KEY, MYGET_PUSH_URL);
-			PushChocolateyPackage(parameters.ChocolateyPackage, MYGET_API_KEY, MYGET_PUSH_URL);
+			PushNuGetPackage(settings.NuGetPackage, settings.MyGetApiKey, settings.MyGetPushUrl);
+			PushChocolateyPackage(settings.ChocolateyPackage, settings.MyGetApiKey, settings.MyGetPushUrl);
 		}
 		catch (Exception)
 		{
@@ -315,14 +311,14 @@ Task("PublishToMyGet")
 // which depends on it, or directly when recovering from errors.
 Task("PublishToNuGet")
 	.Description("Publish packages to NuGet")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (!parameters.IsProductionRelease)
+		if (!settings.IsProductionRelease)
 			Information("Nothing to publish to NuGet from this run.");
 		else
 		try
 		{
-			PushNuGetPackage(parameters.NuGetPackage, NUGET_API_KEY, NUGET_PUSH_URL);
+			PushNuGetPackage(settings.NuGetPackage, settings.NuGetApiKey, settings.NuGetPushUrl);
 		}
 		catch (Exception)
 		{
@@ -334,14 +330,14 @@ Task("PublishToNuGet")
 // which depends on it, or directly when recovering from errors.
 Task("PublishToChocolatey")
 	.Description("Publish packages to Chocolatey")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (!parameters.IsProductionRelease)
+		if (!settings.IsProductionRelease)
 			Information("Nothing to publish to Chocolatey from this run.");
 		else
 		try
 		{
-			PushChocolateyPackage(parameters.ChocolateyPackage, CHOCO_API_KEY, CHOCO_PUSH_URL);
+			PushChocolateyPackage(settings.ChocolateyPackage, settings.ChocolateyApiKey, settings.ChocolateyPushUrl);
 		}
 		catch (Exception)
 		{
@@ -352,13 +348,13 @@ Task("PublishToChocolatey")
 private void PushNuGetPackage(FilePath package, string apiKey, string url)
 {
     CheckPackageExists(package);
-    NuGetPush(package, new NuGetPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
+    NuGetPush(package, new NuGetPushSettings() { ApiKey = apiKey, Source = url });
 }
 
 private void PushChocolateyPackage(FilePath package, string apiKey, string url)
 {
     CheckPackageExists(package);
-    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = EnvironmentVariable(apiKey), Source = url });
+    ChocolateyPush(package, new ChocolateyPushSettings() { ApiKey = apiKey, Source = url });
 }
 
 private void CheckPackageExists(FilePath package)
@@ -373,23 +369,23 @@ private void CheckPackageExists(FilePath package)
 //////////////////////////////////////////////////////////////////////
 
 Task("CreateDraftRelease")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (parameters.BuildVersion.IsReleaseBranch)
+		if (settings.BuildVersion.IsReleaseBranch)
 		{
 			// NOTE: Since this is a release branch, the pre-release label
 			// is "pre", which we don't want to use for the draft release.
 			// The branch name contains the full information to be used
 			// for both the name of the draft release and the milestone,
 			// i.e. release-2.0.0, release-2.0.0-beta2, etc.
-			string milestone = parameters.BranchName.Substring(8);
-			string releaseName = $"{TITLE} {milestone}";
+			string milestone = settings.BranchName.Substring(8);
+			string releaseName = $"{settings.Title} {milestone}";
 
 			Information($"Creating draft release for {releaseName}");
 
 			try
 			{
-				GitReleaseManagerCreate(EnvironmentVariable(GITHUB_ACCESS_TOKEN), GITHUB_OWNER, GITHUB_REPO, new GitReleaseManagerCreateSettings()
+				GitReleaseManagerCreate(settings.GitHubAccessToken, settings.GitHubOwner, settings.GitHubRepository, new GitReleaseManagerCreateSettings()
 				{
 					Name = releaseName,
 					Milestone = milestone
@@ -414,20 +410,22 @@ Task("CreateDraftRelease")
 //////////////////////////////////////////////////////////////////////
 
 Task("CreateProductionRelease")
-	.Does<BuildParameters>((parameters) =>
+	.Does<BuildSettings>((settings) =>
 	{
-		if (parameters.IsProductionRelease)
+		if (settings.IsProductionRelease)
 		{
-			string token = EnvironmentVariable(GITHUB_ACCESS_TOKEN);
-			string tagName = parameters.PackageVersion;
+			string token = settings.GitHubAccessToken;
+			string owner = settings.GitHubOwner;
+			string repository = settings.GitHubRepository;
+			string tagName = settings.PackageVersion;
 			string assets = IsRunningOnWindows()
-				? $"\"{parameters.NuGetPackage},{parameters.ChocolateyPackage}\""
-				: $"\"{parameters.NuGetPackage}\"";
+				? $"\"{settings.NuGetPackage},{settings.ChocolateyPackage}\""
+				: $"\"{settings.NuGetPackage}\"";
 
 			Information($"Publishing release {tagName} to GitHub");
 
-			GitReleaseManagerAddAssets(token, GITHUB_OWNER, GITHUB_REPO, tagName, assets);
-			GitReleaseManagerClose(token, GITHUB_OWNER, GITHUB_REPO, tagName);
+			GitReleaseManagerAddAssets(token, owner, repository, tagName, assets);
+			GitReleaseManagerClose(token, owner, repository, tagName);
 		}
 		else
 		{
