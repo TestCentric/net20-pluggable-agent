@@ -276,7 +276,7 @@ Task("TestChocolateyPackage")
 
 static bool hadPublishingErrors = false;
 
-Task("PublishPackages")
+Task("Publish")
 	.Description("Publish nuget and chocolatey packages according to the current settings")
 	.IsDependentOn("PublishToMyGet")
 	.IsDependentOn("PublishToNuGet")
@@ -456,7 +456,7 @@ Task("Appveyor")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
 	.IsDependentOn("Package")
-	.IsDependentOn("PublishPackages")
+	.IsDependentOn("Publish")
 	.IsDependentOn("CreateDraftRelease")
 	.IsDependentOn("CreateProductionRelease");
 
