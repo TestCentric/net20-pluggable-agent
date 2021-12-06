@@ -1,17 +1,7 @@
 #tool nuget:?package=GitVersion.CommandLine&version=5.0.0
 #tool nuget:?package=GitReleaseManager&version=0.11.0
 
-//////////////////////////////////////////////////////////////////////
-// PROJECT-SPECIFIC CONSTANTS
-//////////////////////////////////////////////////////////////////////
-
-const string DEFAULT_VERSION = "2.0.0";
-
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00021
-
-//////////////////////////////////////////////////////////////////////
-// ARGUMENTS  
-//////////////////////////////////////////////////////////////////////
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00022
 
 var target = Argument("target", "Default");
  
@@ -51,7 +41,7 @@ Setup<BuildSettings>((context) =>
 
 Task("Appveyor")
 	.IsDependentOn("Build")
-	.IsDependentOn("UnitTests")
+	.IsDependentOn("Test")
 	.IsDependentOn("Package")
 	.IsDependentOn("Publish")
 	.IsDependentOn("CreateDraftRelease")
@@ -59,7 +49,7 @@ Task("Appveyor")
 
 Task("Full")
 	.IsDependentOn("Build")
-	.IsDependentOn("UnitTests")
+	.IsDependentOn("Test")
 	.IsDependentOn("Package");
 
 //Task("Travis")
