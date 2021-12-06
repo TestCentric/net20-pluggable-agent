@@ -7,7 +7,7 @@
 
 const string DEFAULT_VERSION = "2.0.0";
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00020
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00021
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS  
@@ -48,21 +48,6 @@ Setup<BuildSettings>((context) =>
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
-
-Task("Package")
-	.IsDependentOn("Build")
-	.IsDependentOn("PackageNuGet")
-    .IsDependentOn("PackageChocolatey");
-
-Task("PackageNuGet")
-	.IsDependentOn("BuildNuGetPackage")
-	.IsDependentOn("VerifyNuGetPackage")
-	.IsDependentOn("TestNuGetPackage");
-
-Task("PackageChocolatey")
-	.IsDependentOn("BuildChocolateyPackage")
-	.IsDependentOn("VerifyChocolateyPackage")
-	.IsDependentOn("TestChocolateyPackage");
 
 Task("Appveyor")
 	.IsDependentOn("Build")
