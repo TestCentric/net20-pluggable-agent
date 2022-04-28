@@ -9,7 +9,7 @@
     <owners>Charlie Poole</owners>
     <copyright>Copyright (c) 2021 Charlie Poole</copyright>
     <projectUrl>http://test-centric.org</projectUrl>
-    <licenseUrl>https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/LICENSE</licenseUrl>
+    <licenseUrl>https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/main/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://test-centric.org/assets/img/testcentric_128x128.png</iconUrl>
     <language>en-US</language>
