@@ -1,12 +1,13 @@
 // ***********************************************************************
-// Copyright (c) Charlie Poole and TestCentric Engine contributors.
-// Licensed under the MIT License. See LICENSE.txt in root directory.
+// Copyright (c) Charlie Poole and TestCentric contributors.
+// Licensed under the MIT License. See LICENSE file in root directory.
 // ***********************************************************************
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using NUnit.Engine;
 using NUnit.Engine.Extensibility;
@@ -17,9 +18,16 @@ namespace TestCentric.Engine.Services
     [Extension]
     public class Net20AgentLauncher : IAgentLauncher
     {
+        static ILogger log = InternalTrace.GetLogger(typeof(Net20AgentLauncher));
+
+        private const string RUNTIME_IDENTIFIER = ".NETFramework";
+        private static readonly Version RUNTIME_VERSION = new Version(2, 0, 0);
+        private static readonly FrameworkName TARGET_FRAMEWORK = new FrameworkName(RUNTIME_IDENTIFIER, RUNTIME_VERSION);
+
         public TestAgentInfo AgentInfo => new TestAgentInfo(
             GetType().Name,
-            TestAgentType.LocalProcess);
+            TestAgentType.LocalProcess,
+            TARGET_FRAMEWORK);
 
         public bool CanCreateProcess(TestPackage package)
         {
@@ -69,6 +77,16 @@ namespace TestCentric.Engine.Services
 
             startInfo.FileName = agentPath;
             startInfo.Arguments = agentArgs;
+
+            /*try
+            {
+                process.Start();
+            }
+            catch(Exception ex)
+            {
+                log.Debug(ex.ToString());
+                throw;
+            }*/
 
             return process;
         }

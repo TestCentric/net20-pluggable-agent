@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>TestCentric.Agent</RootNamespace>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFramework>net20</TargetFramework>
 		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\..\bin\$(Configuration)\agent\</OutputPath>
@@ -29,8 +29,8 @@
 	</ItemGroup>
 	
   <ItemGroup>
-		<PackageReference Include="NUnit.Engine.Api" Version="4.0.0-dev00102" />
-		<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-dev00014" />
+		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
+		<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-alpha7" />
 	</ItemGroup>
 	
   <ItemGroup>

@@ -2,13 +2,13 @@
   
   <PropertyGroup>
     <RootNamespace>TestCentric.Engine</RootNamespace>
-    <TargetFramework>net40</TargetFramework>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
-	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	  <SignAssembly>true</SignAssembly>
-      <AssemblyOriginatorKeyFile>..\..\nunit.snk</AssemblyOriginatorKeyFile>
+    <TargetFramework>net462</TargetFramework>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	<SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\nunit.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,11 +17,12 @@
 
   <ItemGroup>
     <Reference Include="System.Runtime.Remoting" />
-	</ItemGroup>
+  </ItemGroup>
   
-	<ItemGroup>
-		<PackageReference Include="NUnit.Engine.Api" Version="4.0.0-dev00102" />
-		<PackageReference Include="TestCentric.Engine.Api" Version="2.0.0-dev00014" />
-	</ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
+	<PackageReference Include="TestCentric.Engine.Api" Version="2.0.0-dev00029" />
+	<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-dev00029" />
+  </ItemGroup>
   
 </Project>

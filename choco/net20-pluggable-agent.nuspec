@@ -38,6 +38,8 @@
     <file src="../bin/Release/agent/net20-pluggable-agent-x86.pdb" target="tools/agent" />
     <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe.config" target="tools/agent" />
     <file src="../bin/Release/agent/nunit.engine.api.dll" target="tools/agent" />
-    <file src="../bin/Release/agent/testcentric.engine.core.dll" target="tools/agent" />
+	<file src="../bin/Release/agent/testcentric.engine.core.dll" target="tools/agent" />
+	<file src="../bin/Release/agent/testcentric.engine.metadata.dll" target="tools/agent" />
+	<file src="../bin/Release/agent/testcentric.extensibility.dll" target="tools/agent" />
   </files>
 </package>
