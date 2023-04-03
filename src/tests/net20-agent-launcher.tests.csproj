@@ -2,7 +2,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <RootNamespace>TestCentric.Agent</RootNamespace>
-        <TargetFramework>net40</TargetFramework>
+        <TargetFramework>net462</TargetFramework>
 		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
@@ -22,7 +22,7 @@
     </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NUnit" Version="3.11.0" />
-		<PackageReference Include="NUnit.Engine.Api" Version="4.0.0-dev00102" />
+		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
 		<PackageReference Include="NUnitLite" Version="3.11.0" />
 	</ItemGroup>
 	<ItemGroup>

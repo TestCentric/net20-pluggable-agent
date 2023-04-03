@@ -21,19 +21,21 @@
     <releaseNotes>https://raw.githubusercontent.com/TestCentric/net20-pluggable-agent/master/CHANGES.txt</releaseNotes>
   </metadata>
   <files>
-	  <file src="../LICENSE.txt" />
-    <file src="../CHANGES.txt" />
-	  <file src="../testcentric.png" />
-    <file src="../bin/Release/net20-agent-launcher.dll" target="tools" />
-    <file src="../bin/Release/nunit.engine.api.dll" target="tools" />
-    <file src="../bin/Release/testcentric.engine.api.dll" target="tools" />
-    <file src="../bin/Release/agent/net20-pluggable-agent.exe" target="tools/agent" />
-    <file src="../bin/Release/agent/net20-pluggable-agent.pdb" target="tools/agent" />
-    <file src="../bin/Release/agent/net20-pluggable-agent.exe.config" target="tools/agent" />
-    <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe" target="tools/agent" />
-    <file src="../bin/Release/agent/net20-pluggable-agent-x86.pdb" target="tools/agent" />
-    <file src="../bin/Release/agent/net20-pluggable-agent-x86.exe.config" target="tools/agent" />
-    <file src="../bin/Release/agent/nunit.engine.api.dll" target="tools/agent" />
-    <file src="../bin/Release/agent/testcentric.engine.core.dll" target="tools/agent" />
+	<file src="../../LICENSE.txt" />
+    <file src="../../CHANGES.txt" />
+	<file src="../../testcentric.png" />
+    <file src="net20-agent-launcher.dll" target="tools" />
+    <file src="nunit.engine.api.dll" target="tools" />
+    <file src="testcentric.engine.api.dll" target="tools" />
+    <file src="agent/net20-pluggable-agent.exe" target="tools/agent" />
+    <file src="agent/net20-pluggable-agent.pdb" target="tools/agent" />
+    <file src="agent/net20-pluggable-agent.exe.config" target="tools/agent" />
+    <file src="agent/net20-pluggable-agent-x86.exe" target="tools/agent" />
+    <file src="agent/net20-pluggable-agent-x86.pdb" target="tools/agent" />
+    <file src="agent/net20-pluggable-agent-x86.exe.config" target="tools/agent" />
+    <file src="agent/nunit.engine.api.dll" target="tools/agent" />
+    <file src="agent/testcentric.engine.core.dll" target="tools/agent" />
+	<file src="agent/testcentric.engine.metadata.dll" target="tools/agent" />
+	<file src="agent/testcentric.extensibility.dll" target="tools/agent" />
   </files>
 </package>
