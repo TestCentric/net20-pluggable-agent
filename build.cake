@@ -1,12 +1,10 @@
-#tool nuget:?package=GitVersion.CommandLine&version=5.0.0
-#tool nuget:?package=GitReleaseManager&version=0.11.0
+#tool nuget:?package=GitVersion.CommandLine&version=5.6.3
+#tool nuget:?package=GitReleaseManager&version=0.12.1
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00035
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00039
 
 var target = Argument("target", Argument("t", "Default"));
  
-static readonly string GUI_RUNNER = "tools/testcentric.exe";
-
 BuildSettings.Initialize
 (
 	context: Context,
@@ -23,13 +21,45 @@ Information($"Net20PluggableAgent {BuildSettings.Configuration} version {BuildSe
 if (BuildSystem.IsRunningOnAppVeyor)
 	AppVeyor.UpdateBuildVersion(BuildSettings.PackageVersion + "-" + AppVeyor.Environment.Build.Number);
 
-var Net20PackageTest = new PackageTest(
-	1, "Net20PackageTest", "Run mock-assembly.dll targeting .NET 2.0",
-	"tests/net20/mock-assembly.dll --trace:Debug", CommonResult);
+var packageTests = new PackageTest[] {
+	new PackageTest(
+		1, "Net20PackageTest", "Run mock-assembly.dll targeting .NET 2.0",
+		"tests/net20/mock-assembly.dll", CommonResult),
+	new PackageTest(
+		1, "Net35PackageTest", "Run mock-assembly.dll targeting .NET 3.5",
+		"tests/net35/mock-assembly.dll", CommonResult)
+};
 
-var Net35PackageTest = new PackageTest(
-	1, "Net35PackageTest", "Run mock-assembly.dll targeting .NET 3.5",
-	"tests/net35/mock-assembly.dll --trace:Debug", CommonResult);
+var nugetPackage = new NuGetPackage(
+	id: "NUnit.Extension.Net20PluggableAgent",
+	source: "nuget/Net20PluggableAgent.nuspec",
+	basePath: BuildSettings.OutputDirectory,
+	checks: new PackageCheck[] {
+		HasFiles("LICENSE.txt", "CHANGES.txt"),
+		HasDirectory("tools").WithFiles("net20-agent-launcher.dll", "nunit.engine.api.dll"),
+		HasDirectory("tools/agent").WithFiles(
+			"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
+			"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
+			"nunit.engine.api.dll", "testcentric.engine.core.dll",
+			"testcentric.engine.metadata.dll", "testcentric.extensibility.dll")},
+	testRunner: new GuiRunner("TestCentric.GuiRunner", "2.0.0-dev00226"),
+	tests: packageTests );
+
+var chocolateyPackage = new ChocolateyPackage(
+	id: "nunit-extension-net20-pluggable-agent",
+	source: "choco/net20-pluggable-agent.nuspec",
+	basePath: BuildSettings.OutputDirectory,
+	checks: new PackageCheck[] {
+		HasDirectory("tools").WithFiles("net20-agent-launcher.dll", "nunit.engine.api.dll")
+			.WithFiles("LICENSE.txt", "CHANGES.txt", "VERIFICATION.txt"),
+		HasDirectory("tools/agent").WithFiles(
+			"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
+			"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
+			"nunit.engine.api.dll", "testcentric.engine.core.dll")},
+	testRunner: new GuiRunner("testcentric-gui", "2.0.0-dev00226"),
+	tests: packageTests);
+
+BuildSettings.Packages.AddRange(new PackageDefinition[] { nugetPackage, chocolateyPackage });
 
 ExpectedResult CommonResult => new ExpectedResult("Failed")
 {
@@ -44,39 +74,6 @@ ExpectedResult CommonResult => new ExpectedResult("Failed")
 		new ExpectedAssemblyResult("mock-assembly.dll", "Net20AgentLauncher")
 	}
 };
-
-var NuGetAgentPackage = new NuGetPackage(
-		id: "NUnit.Extension.Net20PluggableAgent",
-		source: "nuget/Net20PluggableAgent.nuspec",
-		basePath: BuildSettings.OutputDirectory,
-		checks: new PackageCheck[] {
-			HasFiles("LICENSE.txt", "CHANGES.txt"),
-			HasDirectory("tools").WithFiles("net20-agent-launcher.dll", "nunit.engine.api.dll"),
-			HasDirectory("tools/agent").WithFiles(
-				"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
-				"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
-				"nunit.engine.api.dll", "testcentric.engine.core.dll")
-		},
-		testRunner: new GuiRunner("TestCentric.GuiRunner", "2.0.0-dev00226"),
-		tests: new [] { Net20PackageTest, Net35PackageTest });
-
-var ChocolateyAgentPackage = new ChocolateyPackage(
-		id: "nunit-extension-net20-pluggable-agent",
-		source: "choco/net20-pluggable-agent.nuspec",
-		basePath: BuildSettings.OutputDirectory,
-		checks: new PackageCheck[] {
-			HasDirectory("tools").WithFiles("net20-agent-launcher.dll", "nunit.engine.api.dll")
-				.WithFiles("LICENSE.txt", "CHANGES.txt", "VERIFICATION.txt"),
-			HasDirectory("tools/agent").WithFiles(
-				"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
-				"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
-				"nunit.engine.api.dll", "testcentric.engine.core.dll")
-		},
-		testRunner: new GuiRunner("testcentric-gui", "2.0.0-dev00226"),
-		tests: new [] { Net20PackageTest, Net35PackageTest });
-
-BuildSettings.Packages.Add(NuGetAgentPackage);
-BuildSettings.Packages.Add(ChocolateyAgentPackage);
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
@@ -95,7 +92,7 @@ Task("Appveyor")
 	.IsDependentOn("CreateDraftRelease")
 	.IsDependentOn("CreateProductionRelease");
 
-Task("Full")
+Task("BuildTestAndPackage")
 	.IsDependentOn("Build")
 	.IsDependentOn("Test")
 	.IsDependentOn("Package");
