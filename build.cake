@@ -92,11 +92,6 @@ Task("Appveyor")
 	.IsDependentOn("CreateDraftRelease")
 	.IsDependentOn("CreateProductionRelease");
 
-Task("BuildTestAndPackage")
-	.IsDependentOn("Build")
-	.IsDependentOn("Test")
-	.IsDependentOn("Package");
-
 //Task("Travis")
 //	.IsDependentOn("Build")
 //	.IsDependentOn("RunTests");
