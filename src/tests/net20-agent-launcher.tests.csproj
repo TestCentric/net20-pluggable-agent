@@ -22,8 +22,8 @@
     </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NUnit" Version="3.11.0" />
-		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
 		<PackageReference Include="NUnitLite" Version="3.11.0" />
+		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
 	</ItemGroup>
 	<ItemGroup>
         <None Update="app.config">

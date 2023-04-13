@@ -12,6 +12,7 @@ using System.Text;
 using NUnit.Engine;
 using NUnit.Engine.Extensibility;
 using TestCentric.Engine.Extensibility;
+using TestCentric.Engine.Internal;
 
 namespace TestCentric.Engine.Services
 {
@@ -55,11 +56,11 @@ namespace TestCentric.Engine.Services
             // Set options that need to be in effect before the package
             // is loaded by using the command line.
             if (traceLevel != "Off")
-                sb.Append($" --trace={traceLevel}");
+                sb.Append(" --trace=").EscapeProcessArgument(traceLevel);
             if (debugAgent)
                 sb.Append(" --debug-agent");
             if (workDirectory != string.Empty)
-                sb.Append($" --work={workDirectory}");
+                sb.Append($" --work=").EscapeProcessArgument(workDirectory);
 
             var agentName = runAsX86 ? "net20-pluggable-agent-x86.exe" : "net20-pluggable-agent.exe";
             var agentDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "agent");
@@ -77,16 +78,6 @@ namespace TestCentric.Engine.Services
 
             startInfo.FileName = agentPath;
             startInfo.Arguments = agentArgs;
-
-            /*try
-            {
-                process.Start();
-            }
-            catch(Exception ex)
-            {
-                log.Debug(ex.ToString());
-                throw;
-            }*/
 
             return process;
         }
