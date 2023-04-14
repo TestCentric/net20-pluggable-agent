@@ -1,10 +1,18 @@
-TestCentric Net20 Pluggable Agent 1.0.0 - March 30, 2021
+TestCentric Net20 Pluggable Agent 2.1.0 - April 14, 2023
 
-This is the initial release of the net20 pluggable agent and is the first
-pluggable agent released. Pluggable agents allow the TestCentric Engine
-to support agents for executing tests beyond those that are built in.
+This release brings the agent up to date with the latest APIs
+used in development versions of the GUI and engine.
 
-TestCentric Net20 Pluggable Agent 2.0.0 - December 2, 2021
+Feature
+ * 21 Revert to use of version 3 of the NUnit engine API
+
+Enhancement
+ * 22 Update to use new API for agent launchers
+
+Build
+ * 24 Use Cake tool 2.3.0 for build
+
+5TestCentric Net20 Pluggable Agent 2.0.0 - December 2, 2021
 
 This release of the net20 pluggable agent is compatible with the TestCentric
 2.0 GUI and engine, which is still in development at the time of release.
@@ -17,3 +25,9 @@ Features
 Build
  * 14 Use TestCentric.Cake.Recipe for building agent
  * 16 Add publishing and release to the build script
+
+TestCentric Net20 Pluggable Agent 1.0.0 - March 30, 2021
+
+This is the initial release of the net20 pluggable agent and is the first
+pluggable agent released. Pluggable agents allow the TestCentric Engine
+to support agents for executing tests beyond those that are built in.
