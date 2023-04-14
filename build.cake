@@ -21,6 +21,8 @@ Information($"Net20PluggableAgent {BuildSettings.Configuration} version {BuildSe
 if (BuildSystem.IsRunningOnAppVeyor)
 	AppVeyor.UpdateBuildVersion(BuildSettings.PackageVersion + "-" + AppVeyor.Environment.Build.Number);
 
+Information($"GitHub Access Token: {BuildSettings.GitHubAccessToken}");
+
 var packageTests = new PackageTest[] {
 	new PackageTest(
 		1, "Net20PackageTest", "Run mock-assembly.dll targeting .NET 2.0",
