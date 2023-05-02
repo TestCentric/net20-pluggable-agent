@@ -1,8 +1,6 @@
 #tool NuGet.CommandLine&version=6.0.0
-#tool nuget:?package=GitVersion.CommandLine&version=5.6.3
-#tool nuget:?package=GitReleaseManager&version=0.12.1
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00057
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00061
 
 var target = Argument("target", Argument("t", "Default"));
  
@@ -72,11 +70,6 @@ ExpectedResult CommonResult => new ExpectedResult("Failed")
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
-
-Task("BuildTestAndPackage")
-	.IsDependentOn("Build")
-	.IsDependentOn("Test")
-	.IsDependentOn("Package");
 
 Task("Appveyor")
 	.IsDependentOn("Build")
