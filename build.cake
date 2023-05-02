@@ -1,7 +1,8 @@
+#tool NuGet.CommandLine&version=6.0.0
 #tool nuget:?package=GitVersion.CommandLine&version=5.6.3
 #tool nuget:?package=GitReleaseManager&version=0.12.1
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00039
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00057
 
 var target = Argument("target", Argument("t", "Default"));
  
@@ -11,15 +12,8 @@ BuildSettings.Initialize
 	title: "Net20PluggableAgent",
 	solutionFile: "net20-pluggable-agent.sln",
 	unitTests: "net20-agent-launcher.tests.exe",
-	guiVersion: "2.0.0-dev00226",
-	githubOwner: "TestCentric",
 	githubRepository: "net20-pluggable-agent"
 );
-
-Information($"Net20PluggableAgent {BuildSettings.Configuration} version {BuildSettings.PackageVersion}");
-
-if (BuildSystem.IsRunningOnAppVeyor)
-	AppVeyor.UpdateBuildVersion(BuildSettings.PackageVersion + "-" + AppVeyor.Environment.Build.Number);
 
 var packageTests = new PackageTest[] {
 	new PackageTest(
@@ -91,10 +85,6 @@ Task("Appveyor")
 	.IsDependentOn("Publish")
 	.IsDependentOn("CreateDraftRelease")
 	.IsDependentOn("CreateProductionRelease");
-
-//Task("Travis")
-//	.IsDependentOn("Build")
-//	.IsDependentOn("RunTests");
 
 Task("Default")
     .IsDependentOn("Build");
