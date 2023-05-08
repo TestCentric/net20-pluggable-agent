@@ -37,7 +37,7 @@ var nugetPackage = new NuGetPackage(
 			"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
 			"nunit.engine.api.dll", "testcentric.engine.core.dll",
 			"testcentric.engine.metadata.dll", "testcentric.extensibility.dll")},
-	testRunner: new GuiRunner("TestCentric.GuiRunner", "2.0.0-dev00226"),
+	testRunner: new GuiRunner("TestCentric.GuiRunner", "2.0.0-alpha8"),
 	tests: packageTests );
 
 var chocolateyPackage = new ChocolateyPackage(
@@ -51,7 +51,7 @@ var chocolateyPackage = new ChocolateyPackage(
 			"net20-pluggable-agent.exe", "net20-pluggable-agent.exe.config",
 			"net20-pluggable-agent-x86.exe", "net20-pluggable-agent-x86.exe.config",
 			"nunit.engine.api.dll", "testcentric.engine.core.dll")},
-	testRunner: new GuiRunner("testcentric-gui", "2.0.0-dev00226"),
+	testRunner: new GuiRunner("testcentric-gui", "2.0.0-alpha8"),
 	tests: packageTests);
 
 BuildSettings.Packages.AddRange(new PackageDefinition[] { nugetPackage, chocolateyPackage });
