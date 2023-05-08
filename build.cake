@@ -1,6 +1,9 @@
 #tool NuGet.CommandLine&version=6.0.0
 
-#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0-dev00061
+// Load the recipe
+#load nuget:?package=TestCentric.Cake.Recipe&version=1.0.0
+// Comment out above line and uncomment below for local tests of recipe changes
+//#load ../TestCentric.Cake.Recipe/recipe/*.cake
 
 var target = Argument("target", Argument("t", "Default"));
  
