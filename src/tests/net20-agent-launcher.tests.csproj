@@ -1,33 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <RootNamespace>TestCentric.Agent</RootNamespace>
+        <RootNamespace>TestCentric.Agents</RootNamespace>
         <TargetFramework>net462</TargetFramework>
 		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<ApplicationIcon>..\testcentric.ico</ApplicationIcon>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	    <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
+
 	<ItemGroup>
-		<Compile Include="..\AssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-        <Reference Include="System.Runtime.Remoting" />
+	    <Reference Include="System.Runtime.Remoting" />
     </ItemGroup>
+	
 	<ItemGroup>
         <ProjectReference Include="..\launcher\net20-agent-launcher.csproj" />
     </ItemGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="NUnit" Version="3.11.0" />
 		<PackageReference Include="NUnitLite" Version="3.11.0" />
 		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
 	</ItemGroup>
+	
 	<ItemGroup>
         <None Update="app.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
+    
+	</ItemGroup>
+
 </Project>
