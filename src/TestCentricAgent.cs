@@ -7,42 +7,63 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
+using TestCentric.Engine.Agents;
 using TestCentric.Engine.Internal;
+#if NETFRAMEWORK
 using TestCentric.Engine.Communication.Transports.Remoting;
+#else
+using TestCentric.Engine.Communication.Transports.Tcp;
+#endif
 
-namespace TestCentric.Engine.Agents
+namespace TestCentric.Agents
 {
-    public class TestCentricAgent
+    public class TestCentricAgent<TAgent>
     {
         static Process AgencyProcess;
         static RemoteTestAgent Agent;
         private static Logger log;
+        static int _pid = Process.GetCurrentProcess().Id;
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        public static void Main(string[] args)
+        public static void Execute(string[] args)
         {
             var options = new AgentOptions(args);
-            var pid = Process.GetCurrentProcess().Id;
-            var logName = $"testcentric-agent_{pid}.log";
+            var logName = $"testcentric-agent_{_pid}.log";
 
             InternalTrace.Initialize(Path.Combine(options.WorkDirectory, logName), options.TraceLevel);
-            log = InternalTrace.GetLogger(typeof(TestCentricAgent));
+            log = InternalTrace.GetLogger(typeof(TAgent));
+            log.Info($"{typeof(TAgent).Name} process {_pid} starting");
 
             if (options.DebugAgent || options.DebugTests)
                 TryLaunchDebugger();
 
-            LocateAgencyProcess(options.AgencyPid);
+            if (!string.IsNullOrEmpty(options.AgencyUrl))
+                RegisterAndWaitForCommands(options);
+            else if (options.Files.Count != 0)
+                new AgentDirectRunner(options).ExecuteTestsDirectly();
+            else
+                throw new ArgumentException("No file specified for direct execution");
+        }
 
-            log.Info($".NET 2.0 Agent process {pid} starting");
+        private static void RegisterAndWaitForCommands(AgentOptions options)
+        {
             log.Info($"  AgentId:   {options.AgentId}");
             log.Info($"  AgencyUrl: {options.AgencyUrl}");
+            log.Info($"  AgencyPid: {options.AgencyPid}");
+
+            if (!string.IsNullOrEmpty(options.AgencyPid))
+                LocateAgencyProcess(options.AgencyPid);
 
             log.Info("Starting RemoteTestAgent");
             Agent = new RemoteTestAgent(options.AgentId);
+#if NETFRAMEWORK
             Agent.Transport = new TestAgentRemotingTransport(Agent, options.AgencyUrl);
+#else
+            Agent.Transport = new TestAgentTcpTransport(Agent, options.AgencyUrl);
+#endif
 
             try
             {
@@ -59,7 +80,7 @@ namespace TestCentric.Engine.Agents
                 log.Error("Exception in RemoteTestAgent. {0}", ExceptionHelper.BuildMessageAndStackTrace(ex));
                 Environment.Exit(AgentExitCodes.UNEXPECTED_EXCEPTION);
             }
-            log.Info("Agent process {0} exiting cleanly", pid);
+            log.Info("Agent process {0} exiting cleanly", _pid);
 
             Environment.Exit(AgentExitCodes.OK);
         }
