@@ -7,21 +7,21 @@
 		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
 		<OutputPath>..\..\bin\$(Configuration)\agent\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<ApplicationIcon>..\testcentric.ico</ApplicationIcon>
+		<ApplicationIcon>..\net20-agent\testcentric.ico</ApplicationIcon>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\*.cs" />
+		<Compile Include="..\net20-agent\*.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\TextOutput\ColorConsole.cs" Link="TextOutput\ColorConsole.cs" />
-	  <Compile Include="..\TextOutput\ColorConsoleWriter.cs" Link="TextOutput\ColorConsoleWriter.cs" />
-	  <Compile Include="..\TextOutput\ColorStyle.cs" Link="TextOutput\ColorStyle.cs" />
-	  <Compile Include="..\TextOutput\ExtendedTextWrapper.cs" Link="TextOutput\ExtendedTextWrapper.cs" />
-	  <Compile Include="..\TextOutput\ExtendedTextWriter.cs" Link="TextOutput\ExtendedTextWriter.cs" />
+	  <Compile Include="..\net20-agent\TextOutput\ColorConsole.cs" Link="TextOutput\ColorConsole.cs" />
+	  <Compile Include="..\net20-agent\TextOutput\ColorConsoleWriter.cs" Link="TextOutput\ColorConsoleWriter.cs" />
+	  <Compile Include="..\net20-agent\TextOutput\ColorStyle.cs" Link="TextOutput\ColorStyle.cs" />
+	  <Compile Include="..\net20-agent\TextOutput\ExtendedTextWrapper.cs" Link="TextOutput\ExtendedTextWrapper.cs" />
+	  <Compile Include="..\net20-agent\TextOutput\ExtendedTextWriter.cs" Link="TextOutput\ExtendedTextWriter.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,13 +29,13 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Content Include="..\testcentric.ico" />
-		<Content Include="..\app.config" />
+		<Content Include="..\net20-agent\testcentric.ico" />
+		<Content Include="..\net20-agent\app.config" />
 	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
-		<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-beta2" />
+		<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-dev00001" />
 	</ItemGroup>
 	
 	<ItemGroup>

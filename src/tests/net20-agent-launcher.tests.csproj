@@ -7,7 +7,7 @@
 		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
 	    <OutputPath>..\..\bin\$(Configuration)\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<ApplicationIcon>..\testcentric.ico</ApplicationIcon>
+		<ApplicationIcon>testcentric.ico</ApplicationIcon>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	    <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>

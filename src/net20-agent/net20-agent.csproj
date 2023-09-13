@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
 	<PropertyGroup>
-		<RootNamespace>TestCentric.Engine</RootNamespace>
-		<TargetFramework>net462</TargetFramework>
-		<OutputPath>..\..\bin\$(Configuration)\</OutputPath>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>TestCentric.Agents</RootNamespace>
+		<TargetFrameworks>net20</TargetFrameworks>
+		<GenerateSupportedRuntime>false</GenerateSupportedRuntime>
+		<OutputPath>..\..\bin\$(Configuration)\agent\</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<ApplicationIcon>testcentric.ico</ApplicationIcon>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\..\testcentric.snk</AssemblyOriginatorKeyFile>
+		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Reference Include="System.Runtime.Remoting" />
 	</ItemGroup>
-  
+	
 	<ItemGroup>
 		<PackageReference Include="NUnit.Engine.Api" Version="3.16.2" />
-		<PackageReference Include="TestCentric.Engine.Api" Version="2.0.0-dev00001" />
 		<PackageReference Include="TestCentric.Engine.Core" Version="2.0.0-dev00001" />
 	</ItemGroup>
-  
+	
 </Project>
