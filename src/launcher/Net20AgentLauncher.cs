@@ -9,17 +9,15 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
-using NUnit.Engine;
-using NUnit.Engine.Extensibility;
 using TestCentric.Engine.Extensibility;
-using TestCentric.Engine.Internal;
+using TestCentric.Extensibility;
 
 namespace TestCentric.Engine.Services
 {
     [Extension]
     public class Net20AgentLauncher : IAgentLauncher
     {
-        static ILogger log = InternalTrace.GetLogger(typeof(Net20AgentLauncher));
+        //static ILogger log = InternalTrace.GetLogger(typeof(Net20AgentLauncher));
 
         private const string RUNTIME_IDENTIFIER = ".NETFramework";
         private static readonly Version RUNTIME_VERSION = new Version(2, 0, 0);
@@ -28,7 +26,7 @@ namespace TestCentric.Engine.Services
         public TestAgentInfo AgentInfo => new TestAgentInfo(
             GetType().Name,
             TestAgentType.LocalProcess,
-            TARGET_FRAMEWORK);
+            TARGET_FRAMEWORK.ToString());
 
         public bool CanCreateProcess(TestPackage package)
         {
@@ -56,11 +54,11 @@ namespace TestCentric.Engine.Services
             // Set options that need to be in effect before the package
             // is loaded by using the command line.
             if (traceLevel != "Off")
-                sb.Append(" --trace=").EscapeProcessArgument(traceLevel);
+                sb.Append($" --trace={traceLevel}");
             if (debugAgent)
                 sb.Append(" --debug-agent");
             if (workDirectory != string.Empty)
-                sb.Append($" --work=").EscapeProcessArgument(workDirectory);
+                sb.Append($" --work={workDirectory}");
 
             var agentName = runAsX86 ? "net20-pluggable-agent-x86.exe" : "net20-pluggable-agent.exe";
             var agentDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "agent");
