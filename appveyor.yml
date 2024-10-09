@@ -4,7 +4,7 @@ before_build:
   - cmd: nuget sources add -Name "MyGet" -Source "https://www.myget.org/F/testcentric/api/v3/index.json"
 
 build_script: 
-  - ps: .\build.ps1 --Target=AppVeyor --Configuration=Release
+  - ps: .\build.ps1 --Target=ContinuousIntegration --Configuration=Release
   
 # disable built-in tests.
 test: false
